@@ -14,7 +14,7 @@ import static java.lang.Math.abs;
 
 public class TableWindow extends JPanel implements Runnable, KeyListener
 {
-    private static final int FPS        = 60;
+    private static final int FPS = 60;
     private Thread thread;
     private boolean isRunning = true;
     private BufferedImage bufferedImage;
@@ -119,7 +119,8 @@ public class TableWindow extends JPanel implements Runnable, KeyListener
 
 
         // Holes
-        Helper.HOLES.forEach((String key, int[] value) -> {
+        Helper.HOLES.forEach((String key, int[] value) ->
+         {
              graphics2D.setColor(Color.BLACK);
              graphics2D.fillOval(Helper.HOLES.get(key)[0], Helper.HOLES.get(key)[1], Helper.HR * 2, Helper.HR * 2);
              // Hole arcs
@@ -127,7 +128,7 @@ public class TableWindow extends JPanel implements Runnable, KeyListener
              graphics2D.setStroke(new BasicStroke(2));
              graphics2D.drawArc(Helper.HOLES.get(key)[0], Helper.HOLES.get(key)[1], Helper.HR * 2, Helper.HR * 2, Helper.ARCS.get(key)[0], Helper.ARCS.get(key)[1]);
 
-        });
+         });
 
 
         reDrawBalls();
@@ -196,8 +197,8 @@ public class TableWindow extends JPanel implements Runnable, KeyListener
     {
         Helper.HOLES.forEach((String key, int[] value) ->
         {
-             for (int b = 0; b < balls.size(); b++)
-             {
+            for (int b = 0; b < balls.size(); b++)
+            {
 
                  double dx       = balls.get(b).getX() - value[0] - 15;
                  double dy       = balls.get(b).getY() - value[1] - 10;
@@ -208,7 +209,7 @@ public class TableWindow extends JPanel implements Runnable, KeyListener
                      balls.remove(b);
                      sound.play("pocket.wav");
                  }
-             }
+            }
         });
     }
 }
