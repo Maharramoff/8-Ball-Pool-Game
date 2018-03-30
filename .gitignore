@@ -1,0 +1,5 @@
+src/main/resources/images/
+src/test/
+target/
+/.idea/
+/pool.game.iml

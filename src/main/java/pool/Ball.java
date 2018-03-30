@@ -8,7 +8,7 @@ public class Ball
     private int r, number;
     private double dx;
     private double dy;
-    private double speed = 2;
+    private double speed = 5;
 
     Ball(int number)
     {
@@ -73,8 +73,8 @@ public class Ball
 
     public void update()
     {
-        //dx *= 0.992;
-        //dy *= 0.992;
+        dx *= 0.992;
+        dy *= 0.992;
 
         if ((Math.abs(dx) + Math.abs(dy)) < 0.5)
         {
