@@ -5,19 +5,21 @@ import java.awt.*;
 public class Ball
 {
     private double x, y;
-    private int r, number, row, col;
-    private double dx;
-    private double dy;
-    private double speed = 5;
+    private int r, number;
+    private double dx, dy, speed = 5;
 
     Ball(int number)
     {
         setSpeed(speed);
         r = 10;
         this.number = number;
+        setXY(number);
+    }
 
-        row = 6 - (int) Math.ceil((-1 + Math.sqrt(1 + 8 * number)) / 2);
-        col = number - row * (row - 1) / 2;
+    private void setXY(int number)
+    {
+        int row = (int) Math.ceil((-1 + Math.sqrt(1 + 8 * number)) / 2); // Using quadratic equation formula
+        int col = row * (row - 1) / 2; // Perhaps this will be needed to further optimize the code
 
         if (number == 0)
         {
@@ -26,52 +28,12 @@ public class Ball
         }
         else
         {
-            x = (Helper.SW - Helper.SW / 4) + (r - (r * 2 * row));
-
-            if(number > 10 && number <= 15)
-            {
-                y = Helper.SH / 2 + 2 * r - (r * 2 * (14 - number));
-            }
-            else if(number > 6 && number <= 10)
-            {
-                y = Helper.SH / 2 + r - (r * 2 * (9 - number));
-            }
-            else if(number > 3 && number <= 6)
-            {
-                y = (Helper.SH / 2) - (r * 2 * (5 - number));
-            }
-            else if(number > 1 && number <= 3)
-            {
-                y = (Helper.SH / 2) - r - (r * 2 * (2 - number));
-            }
-            else
-            {
-                y = (Helper.SH / 2);
-            }
-            /*else
-            {
-                x = (Helper.SW - Helper.SW / 4) + (r - (r * 2 * number));
-            }*/
-
-
+            x = (Helper.SW - Helper.SW / 4) + (r - (r * 2 * (6 - row)));
+            y = (Helper.SH / 2) - (r * 2 * (((row * (row + 1) / 2) - 1) - number)) + (row - 3) * r;
         }
-        /*else
-        {
-            x = 100 + (number * 30) + Math.random() * Helper.TW / 2 + Helper.TW / 4;
-            y = 60 + (number * 10)(int) (Math.random() * 100);
-        }*/
 
-
-        double angle  = Math.random() * 140 + 20;
-        double radius = Math.toRadians(angle);
-
-        //setDx(Math.cos(radius) * getSpeed());
-        //setDy(Math.sin(radius) * getSpeed());
-    }
-
-    private double getSpeed()
-    {
-        return this.speed;
+        setX(x);
+        setY(y);
     }
 
     private void setSpeed(double s)
@@ -168,6 +130,16 @@ public class Ball
         graphics2D.setFont(new Font("Arial Bold", Font.BOLD, 8));
         graphics2D.drawString(String.valueOf(number), (float) (x - (number >= 10 ? 4.6 : 2.6)), (float) (y + 2.6));
 
+    }
+
+    private void setX(double x)
+    {
+        this.x = x;
+    }
+
+    private void setY(double y)
+    {
+        this.y = y;
     }
 }
 
