@@ -17,6 +17,7 @@ public class TableWindow extends JPanel implements Runnable, KeyListener
     private static final int FPS = 60;
     private Thread thread;
     private boolean isRunning = true;
+    private boolean isStarted = false;
     private BufferedImage bufferedImage;
     private Graphics2D    graphics2D;
 
@@ -94,6 +95,8 @@ public class TableWindow extends JPanel implements Runnable, KeyListener
     {
         checkBallsInPockets();
         updateBalls();
+
+        if(isStarted)
         checkBallsCollisions();
     }
 
@@ -152,6 +155,8 @@ public class TableWindow extends JPanel implements Runnable, KeyListener
 
     public void keyReleased(KeyEvent e)
     {
+        if(e.getKeyCode() == KeyEvent.VK_SPACE)
+            setStarted(true);
     }
 
     private void updateBalls()
@@ -191,6 +196,16 @@ public class TableWindow extends JPanel implements Runnable, KeyListener
                 }
             }
         }
+    }
+
+    public boolean isStarted()
+    {
+        return isStarted;
+    }
+
+    public void setStarted(boolean started)
+    {
+        isStarted = started;
     }
 
     private void checkBallsInPockets()
