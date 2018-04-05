@@ -15,6 +15,9 @@ public class Sound
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(path);
             Clip             clip        = AudioSystem.getClip();
             clip.open(audioStream);
+            if (clip.isRunning())
+                clip.stop();
+            clip.setFramePosition(0);
             clip.start();
         }
         catch (UnsupportedAudioFileException | LineUnavailableException | IOException e)
