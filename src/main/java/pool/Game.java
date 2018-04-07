@@ -14,8 +14,11 @@ import static java.lang.Math.abs;
 public class Game extends JPanel implements Runnable, KeyListener
 {
     private Thread thread;
-    private boolean isRunning      = true;
-    private boolean hit            = false;
+    private boolean isRunning        = true;
+    private boolean hit              = false;
+    private boolean whiteBallFallen  = false;
+    private boolean allBallsStopped  = true;
+    private int     indexOfWhiteBall = -1;
     private RenderingHints hints;
 
     private static ArrayList<Ball> balls;
@@ -48,17 +51,50 @@ public class Game extends JPanel implements Runnable, KeyListener
 
     private void tableUpdate()
     {
-        updateBalls();
-        checkBallsInPockets();
-        checkBallsCollisions();
+        for (Ball ball : balls)
+            if (ball.dx != 0 || ball.dy != 0)
+                return;
+
+        allBallsStopped = true;
 
         if (hit)
         {
-            balls.get(0).dx = 15;
-            balls.get(0).dy = 0;
-            balls.get(0).startFriction();
-            setHit(false);
+            balls.get(indexOfWhiteBall).dx = 15;
+            balls.get(indexOfWhiteBall).dy = 0;
+            balls.get(indexOfWhiteBall).startFriction();
+            hit = false;
+            allBallsStopped = false;
+            sound.play("clash-old.wav");
         }
+    }
+
+    private void redrawWhiteBall()
+    {
+        boolean whiteBall = false;
+        for (Ball c : balls)
+        {
+            if (c.number == 0)
+                whiteBall = true;
+        }
+
+        if (!whiteBall)
+        {
+            balls.add(new Ball(0));
+            indexOfWhiteBall = getCurrentIndexOfWhiteBall(balls);
+        }
+    }
+
+    private int getCurrentIndexOfWhiteBall(ArrayList<Ball> balls)
+    {
+        IntStream.range(0, balls.size()).filter(i -> balls.get(i).number == 0).forEach(i -> indexOfWhiteBall = i);
+
+        if (indexOfWhiteBall == -1)
+        {
+            System.out.println("White ball not found !!!!");
+            System.exit(0);
+        }
+
+        return indexOfWhiteBall;
     }
 
     private void checkBallsInPockets()
@@ -77,6 +113,7 @@ public class Game extends JPanel implements Runnable, KeyListener
                  {
                      System.out.println("Ball in: " + key + " (Dist: " + distance + ", " + minDist + ")");
                      balls.remove(b);
+                     if(B.number == 0) whiteBallFallen = true;
                      sound.play("pocket.wav");
                  }
              }
@@ -121,11 +158,6 @@ public class Game extends JPanel implements Runnable, KeyListener
         }
     }
 
-    private void setHit(boolean hit)
-    {
-        this.hit = hit;
-    }
-
     public void run()
     {
         hints = createRenderingHints();
@@ -140,6 +172,9 @@ public class Game extends JPanel implements Runnable, KeyListener
             startTime = System.nanoTime();
 
             tableUpdate();
+            updateBalls();
+            checkBallsInPockets();
+            checkBallsCollisions();
             repaint();
             timeMillis = (System.nanoTime() - startTime) / 1000000;
             waitTime = abs(targetTime - timeMillis);
@@ -209,6 +244,7 @@ public class Game extends JPanel implements Runnable, KeyListener
         balls = new ArrayList<>();
 
         IntStream.range(0, 16).forEach(i -> balls.add(new Ball(i)));
+        indexOfWhiteBall = 0;
     }
 
     private RenderingHints createRenderingHints() {
@@ -223,6 +259,12 @@ public class Game extends JPanel implements Runnable, KeyListener
 
     private void updateBalls()
     {
+        if (whiteBallFallen && allBallsStopped)
+        {
+            redrawWhiteBall();
+            whiteBallFallen = false;
+        }
+
         balls.forEach(Ball::update);
     }
 
@@ -237,14 +279,22 @@ public class Game extends JPanel implements Runnable, KeyListener
 
     public void keyPressed(KeyEvent e)
     {
+        if (!allBallsStopped)
+        {
+            return;
+        }
+
         if (e.getKeyCode() == KeyEvent.VK_SPACE)
-            setHit(true);
+        {
+            indexOfWhiteBall = getCurrentIndexOfWhiteBall(balls);
+            hit = true;
+        }
     }
 
     public void keyReleased(KeyEvent e)
     {
         if (e.getKeyCode() == KeyEvent.VK_SPACE)
-            setHit(false);
+            hit = false;
     }
 
 }

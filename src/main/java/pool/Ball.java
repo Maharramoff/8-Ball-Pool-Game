@@ -5,10 +5,10 @@ import java.awt.*;
 public class Ball
 {
     protected double x, y;
-    protected int    r;
-    private   int    number;
+    protected int    r, number;
     protected double dx, dy;
     private   double ddy, ddx;
+    private Sound sound = new Sound();
 
     private void setXY(int number)
     {
@@ -49,27 +49,35 @@ public class Ball
 
     private void ifBounds()
     {
+        boolean bound = false;
+
         if (x > Helper.SW - (Helper.TB + 2 * r))
         {
             dx = -Math.abs(dx);
             ddx = Math.abs(ddx);
+            bound = true;
         }
         else if (x < Helper.TB)
         {
             dx = Math.abs(dx);
             ddx = -Math.abs(ddx);
+            bound = true;
         }
 
         if (y < Helper.TB)
         {
             dy = Math.abs(dy);
             ddy = -Math.abs(ddy);
+            bound = true;
         }
         else if (y > Helper.SH - (Helper.TB + 2 * r))
         {
             dy = -Math.abs(dy);
             ddy = Math.abs(ddy);
+            bound = true;
         }
+
+        if(bound) sound.play("bump.wav");
     }
 
     public void startFriction()
