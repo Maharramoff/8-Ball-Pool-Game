@@ -5,11 +5,12 @@ import java.util.HashMap;
 
 public final class Helper
 {
-    static final int FPS = 120;
+    static final int FPS = 60;
     static final int SW  = 640, SH = 358; // Screen width and height
     static final int TB = 20; // Table border width
     static final int HR = 14; // Hole radius
     public static boolean   FR = true; // Friction on/off
+    public static boolean   HA = true; // Holes on/off
 
     private static final int HM = 1; // Hole margin from border
 

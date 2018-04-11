@@ -2,7 +2,7 @@ package pool;
 
 import java.awt.*;
 
-public class Ball
+public final class Ball
 {
     protected double x, y;
     protected int    r, number;
@@ -77,14 +77,38 @@ public class Ball
             bound = true;
         }
 
-        if(bound) sound.play("bump.wav");
+        if(bound)
+        {
+            boundSound(dx, dy);
+            dx *= 0.98;
+            dy *= 0.98;
+        }
+    }
+
+    private void boundSound(double dx, double dy)
+    {
+
+        int xyVelo = (int) (Math.abs(dx) + Math.abs(dy));
+        float vol = -20.0f;
+
+        if(xyVelo > 10)
+            vol = 1.0f;
+        else if(xyVelo > 6)
+            vol = -3.0f;
+        else if(xyVelo > 3)
+            vol = -6.0f;
+        else if (xyVelo > 1)
+            vol = -10.0f;
+
+        sound.play("bump.wav", vol);
+
     }
 
     public void startFriction()
     {
         double k = dx * dx + dy * dy;
 
-        k = Math.sqrt(k) * Helper.FPS / 2;
+        k = Math.sqrt(k) * Helper.FPS / 3;
 
         if (k == 0) return;
 

@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class GameMenu extends JFrame implements ActionListener
+public final class GameMenu extends JFrame implements ActionListener
 {
 
     private Game game;
@@ -26,6 +26,7 @@ public class GameMenu extends JFrame implements ActionListener
         setTitle("Pool game");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         JMenuBar menu = new JMenuBar();
 
@@ -35,7 +36,7 @@ public class GameMenu extends JFrame implements ActionListener
         menu.add(opts);
 
         addMenuItems(file, "New game-Quit the game-About");
-        addMenuItems(opts, "@Friction on/off");
+        addMenuItems(opts, "@Friction on/off-Holes on/off");
 
         setJMenuBar(menu);
         add(game, BorderLayout.CENTER);
@@ -70,6 +71,10 @@ public class GameMenu extends JFrame implements ActionListener
             case "Friction on/off":
                 System.out.println("Friction turned " + (Helper.FR ? "Off" : "On") + "");
                 Helper.FR = !Helper.FR;
+                break;
+            case "Holes on/off":
+                System.out.println("Holes turned " + (Helper.HA ? "Off" : "On") + "");
+                Helper.HA = !Helper.HA;
                 break;
             case "About":
                 JOptionPane.showMessageDialog(this, "Ugly Pool game by Maharramoff Shamkhal", "About the author", JOptionPane.PLAIN_MESSAGE);

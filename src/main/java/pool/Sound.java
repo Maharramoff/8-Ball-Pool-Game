@@ -8,6 +8,16 @@ public class Sound
 {
     public void play(String s)
     {
+        getPlay(s, 0.0f);
+    }
+
+    public void play(String s, Float f)
+    {
+        getPlay(s, f);
+    }
+
+    private void getPlay(String s, float f)
+    {
         String              soundDir = "/sounds/";
         BufferedInputStream path     = new BufferedInputStream(Sound.class.getResourceAsStream(soundDir + "" + s));
         try
@@ -18,6 +28,10 @@ public class Sound
             if (clip.isRunning())
                 clip.stop();
             clip.setFramePosition(0);
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+
+            if (f != 0.0f)
+                gainControl.setValue(f); // Reduce volume by given decibels.
             clip.start();
         }
         catch (UnsupportedAudioFileException | LineUnavailableException | IOException e)
