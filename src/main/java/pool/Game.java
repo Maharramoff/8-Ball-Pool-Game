@@ -1,32 +1,26 @@
 package pool;
 
-
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.abs;
 
-public final class Game extends JPanel implements Runnable, KeyListener
+public final class Game extends JPanel implements Runnable
 {
     private Thread thread;
     private   boolean isRunning       = true;
-    private   boolean hit             = false;
     private   boolean whiteBallFallen = false;
     protected boolean readyForShoot   = true;
     public    boolean movingWhiteBall = true;
-    private   boolean cueTaken        = false;
-
 
     protected int indexOfWhiteBall = -1;
     private RenderingHints hints;
 
-    private   HashMap<String, Integer> cue;
     protected ArrayList<Ball>          balls;
     Sound sound = new Sound();
     private Shoot shoot = new Shoot(this);
@@ -40,7 +34,6 @@ public final class Game extends JPanel implements Runnable, KeyListener
         setPreferredSize(new Dimension(Helper.SW, Helper.SH));
         setSize(Helper.SW, Helper.SH);
         setFocusable(true);
-        addKeyListener(this);
         requestFocus();
     }
 
@@ -53,40 +46,29 @@ public final class Game extends JPanel implements Runnable, KeyListener
             thread = new Thread(this);
             thread.start();
         }
-
-       // addKeyListener(this);
     }
 
     private void tableUpdate()
     {
+        int totalBall = balls.size();
+
+        if(totalBall == 0 || (totalBall == 1 && balls.get(0).number == 0))
+            createNewGame();
+
         for (Ball ball : balls)
             if (ball.dx != 0 || ball.dy != 0)
                 return;
 
         readyForShoot = true;
-
-        if (hit)
-        {
-            double speed = 15 + (30.0 / Helper.FPS) * 4;
-            System.out.println(speed);
-            balls.get(indexOfWhiteBall).dx = speed;
-            balls.get(indexOfWhiteBall).dy = 0.3;
-            balls.get(indexOfWhiteBall).startFriction();
-            hit = false;
-            readyForShoot = false;
-            movingWhiteBall = false;
-            sound.play("clash-old.wav");
-        }
+        shoot.aiming = true;
     }
 
-    private void redrawWhiteBall()
+    private void redrawWhiteBall(Ball B)
     {
         boolean isWhiteBall = false;
-        for (Ball c : balls)
-        {
-            if (c.number == 0)
-                isWhiteBall = true;
-        }
+
+        if (B.number == 0)
+            isWhiteBall = true;
 
         if (!isWhiteBall)
         {
@@ -108,47 +90,7 @@ public final class Game extends JPanel implements Runnable, KeyListener
         return indexOfWhiteBall;
     }
 
-    private void checkBallsInPockets()
-    {
-
-        if(!Helper.HA) return;
-
-        if (movingWhiteBall) return;
-
-        Helper.HOLES.forEach((String key, int[] value) ->
-         {
-             for (int b = 0; b < balls.size(); b++)
-             {
-                 Ball B = balls.get(b);
-
-                 double dx       = value[0] - B.x;
-                 double dy       = value[1] - B.y;
-                 double distance = Math.hypot(dx, dy) - Helper.HR - B.r;
-                 double minDist  = -B.r;
-                 if (distance < minDist)
-                 {
-                     balls.remove(b);
-                     if(B.number == 0) whiteBallFallen = true;
-                     sound.play("pocket.wav", -10.0f);
-                 }
-             }
-         });
-    }
-
-    private void checkBallsCollisions()
-    {
-        for (int i = 0; i < balls.size(); i++)
-        {
-            for (int j = i + 1; j < balls.size(); j++)
-            {
-                Ball A = balls.get(i), B = balls.get(j);
-
-                handleBallCollision(A, B);
-            }
-        }
-    }
-
-    private void handleBallCollision(Ball A, Ball B)
+    private boolean handleBallCollision(Ball A, Ball B)
     {
         double dx = A.getCenterX() - B.getCenterX();
         double dy = A.getCenterY() - B.getCenterY();
@@ -171,10 +113,11 @@ public final class Game extends JPanel implements Runnable, KeyListener
 
                 handleCollisionSound(newX, newY);
 
-                A.startFriction();
-                B.startFriction();
+                return true;
             }
         }
+
+        return false;
     }
 
     private void handleCollisionSound(double newX, double newY)
@@ -209,8 +152,6 @@ public final class Game extends JPanel implements Runnable, KeyListener
 
 
             updateBalls();
-            checkBallsInPockets();
-            checkBallsCollisions();
             tableUpdate();
             repaint();
             timeMillis = (System.nanoTime() - startTime) / 1000000;
@@ -302,41 +243,93 @@ public final class Game extends JPanel implements Runnable, KeyListener
 
     private void updateBalls()
     {
-        if (whiteBallFallen && readyForShoot)
+
+        Ball b1, b2;
+
+        for (int i = 0; i < balls.size(); i++)
         {
-            redrawWhiteBall();
-            whiteBallFallen = false;
-            movingWhiteBall = true;
+
+            b1 = balls.get(i);
+
+            if (whiteBallFallen && readyForShoot)
+            {
+                redrawWhiteBall(b1);
+                whiteBallFallen = false;
+                movingWhiteBall = true;
+            }
+
+            b1.update();
+
+            if (ifPocket(b1))
+            {
+                b1.dx = 0;
+                b1.dy = 0;
+                balls.remove(i);
+
+                if(b1.number == 0)
+                {
+                    whiteBallFallen = true;
+                    indexOfWhiteBall = -1;
+                }
+                else
+                {
+                    if (!whiteBallFallen)
+                    {
+                        indexOfWhiteBall = getCurrentIndexOfWhiteBall(balls);
+                    }
+
+                    // TODO handle fall
+                }
+            }
+            else
+            {
+                b1.handleBounds();
+
+                for (int b = i + 1; b < balls.size(); b++)
+                {
+                    b2 = balls.get(b);
+                    if (handleBallCollision(b1, b2))
+                    {
+                        b1.startFriction();
+                        b2.startFriction();
+                    }
+                }
+            }
         }
 
-        balls.forEach(Ball::update);
+        tableUpdate();
     }
+
+    private boolean ifPocket(Ball B)
+    {
+        if(!Helper.HA) return false;
+
+        if (movingWhiteBall) return false;
+
+        Map<String, int[]> map = Helper.HOLES;
+
+        for (Map.Entry<String, int[]> entry : map.entrySet())
+        {
+            double dx   = entry.getValue()[0] + Helper.HR - B.getCenterX();
+            double dy   = entry.getValue()[1] + Helper.HR - B.getCenterY();
+            double dist = Math.sqrt(dx * dx + dy * dy);
+            double min  = Math.sqrt((Helper.HR + B.r) * (Helper.HR + B.r)) - (B.r - Helper.HM);
+
+            if (dist <= min)
+            {
+                sound.play("pocket.wav", -10.0f);
+                tableUpdate();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     private void reDrawBalls(Graphics2D graphics2D)
     {
         balls.forEach(ball -> ball.draw(graphics2D));
-    }
-
-    public void keyTyped(KeyEvent e)
-    {
-    }
-
-    public void keyPressed(KeyEvent e)
-    {
-    }
-
-    public void keyReleased(KeyEvent e)
-    {
-        if (!readyForShoot)
-        {
-            return;
-        }
-
-        if (e.getKeyCode() == KeyEvent.VK_SPACE)
-        {
-            indexOfWhiteBall = getCurrentIndexOfWhiteBall(balls);
-            hit = true;
-        }
     }
 
 }

@@ -4,7 +4,7 @@ import javax.sound.sampled.*;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
-public class Sound
+public final class Sound
 {
     public void play(String s)
     {

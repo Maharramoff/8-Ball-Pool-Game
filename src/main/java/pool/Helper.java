@@ -5,22 +5,22 @@ import java.util.HashMap;
 
 public final class Helper
 {
-    static final int FPS = 60;
-    static final int SW  = 640, SH = 358; // Screen width and height
-    static final int TB = 20; // Table border width
-    static final int HR = 14; // Hole radius
-    public static boolean   FR = true; // Friction on/off
-    public static boolean   HA = true; // Holes on/off
+    protected static final int FPS = 120;
+    protected static final int SW  = 640, SH = 358; // Screen width and height
+    protected static final int     TB = 20; // Table border width
+    protected static final int     HR = 14; // Hole radius
+    protected static       boolean FR = true; // Friction on/off
+    protected static       boolean HA = true; // Holes on/off
 
-    private static final int HM = 1; // Hole margin from border
+    protected static final int HM = 1; // Hole margin from border
 
-    static final Color BC         = new Color(136, 49, 23); // Border color
-    static final Color TC         = new Color(60, 180, 7); // Table color
-    static final Color BALL_WHITE = new Color(255, 247, 200); // Milky white
-    static final Color HAC        = new Color(239, 193, 82); // Hole arc color
+    protected static final Color BC         = new Color(136, 49, 23); // Border color
+    protected static final Color TC         = new Color(60, 180, 7); // Table color
+    protected static final Color BALL_WHITE = new Color(255, 247, 200); // Milky white
+    protected static final Color HAC        = new Color(239, 193, 82); // Hole arc color
 
 
-    static final HashMap<String, int[]> HOLES = new HashMap<String, int[]>()
+    protected static final HashMap<String, int[]> HOLES = new HashMap<String, int[]>()
     {{
         put("TL", new int[]{TB / 2, TB / 2});
         put("TC", new int[]{SW / 2, HM});
@@ -30,7 +30,7 @@ public final class Helper
         put("BR", new int[]{SW - (TB / 2 + (HR * 2)), SH - (TB / 2 + (HR * 2))});
     }};
 
-    static final HashMap<String, int[]> ARCS = new HashMap<String, int[]>()
+    protected static final HashMap<String, int[]> ARCS = new HashMap<String, int[]>()
     {{
         put("TL", new int[]{20, 240});
         put("TC", new int[]{7, 172});
@@ -40,7 +40,7 @@ public final class Helper
         put("BR", new int[]{200, 240});
     }};
 
-    static final HashMap<Integer, Color[]> BALL_COLORS = new HashMap<Integer, Color[]>()
+    protected static final HashMap<Integer, Color[]> BALL_COLORS = new HashMap<Integer, Color[]>()
     {{
         put(0, new Color[]{BALL_WHITE, BALL_WHITE, BALL_WHITE, null});
         put(1, new Color[]{new Color(245, 195, 18), BALL_WHITE, Color.BLACK, null});

@@ -4,13 +4,14 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.HashMap;
 
 public final class Shoot implements MouseListener, MouseMotionListener
 {
     private Game                     game;
-    private HashMap<String, Integer> cue;
-    private   boolean cueTaken        = false;
+    protected boolean aiming = false, cue = true;
+    private   int     power  = 20, aim_r = 10;
+    private double aim_oval_x = 0, aim_oval_y = 0;
+    private int aim_line_x1, aim_line_x2, aim_line_y1, aim_line_y2;
 
     Shoot(Game g)
     {
@@ -19,16 +20,14 @@ public final class Shoot implements MouseListener, MouseMotionListener
         game.addMouseMotionListener(this);
     }
 
-    public void draw(Graphics g)
+    public void draw(Graphics2D g)
     {
-        if (cueTaken)
+        if (cue && !game.movingWhiteBall && game.readyForShoot)
         {
-            g.setColor(Color.LIGHT_GRAY);
-            if (cue == null)
-                return;
-            g.drawLine(
-                    cue.get("x1"), cue.get("y1"),
-                    cue.get("x2"), cue.get("y2"));
+            g.setColor(Helper.BALL_WHITE);
+            g.setStroke(new BasicStroke(1));
+            g.drawOval((int) aim_oval_x, (int) aim_oval_y, aim_r * 2, aim_r * 2);
+            g.drawLine(aim_line_x1, aim_line_y1, aim_line_x2, aim_line_y2);
         }
     }
 
@@ -44,8 +43,6 @@ public final class Shoot implements MouseListener, MouseMotionListener
             return;
         }
 
-        System.out.println("Mouse click " + e.getPoint());
-
         Ball b;
         for (int ball = 0; ball < game.balls.size(); ball++)
         {
@@ -54,7 +51,9 @@ public final class Shoot implements MouseListener, MouseMotionListener
             if (Math.abs((int) b.x - e.getPoint().x + b.r) <= b.r && Math.abs((int) (b.y) - e.getPoint().y + b.r) <= b.r)
             {
                 if (ball == game.indexOfWhiteBall && !game.movingWhiteBall)
-                    cueTaken = true;
+                {
+                    aiming = true;
+                }
             }
         }
     }
@@ -78,27 +77,27 @@ public final class Shoot implements MouseListener, MouseMotionListener
 
         Ball b = game.balls.get(game.indexOfWhiteBall);
 
-        System.out.println("Mouse release " + e.getX() + "," + e.getY());
+        cue = false;
 
-        cue = null;
-
-        if (cueTaken)
+        if (game.movingWhiteBall)
+        {
+            game.movingWhiteBall = false;
+            aiming = true;
+        }
+        else if(aiming)
         {
             game.readyForShoot = false;
 
-            b.dx = (b.x + 10 - e.getX()) / 25;
-            b.dy = (b.y + 10 - e.getY()) / 25;
+            double vX = aim_oval_x - b.x;
+            double vY = aim_oval_y - b.y;
+            double len = Math.sqrt((vX*vX)+(vY*vY));
 
-            System.out.println("Ball " + b.dx + ", " + b.dy);
+            b.dx = vX/len * power * 60 / Helper.FPS;
+            b.dy = vY/len * power * 60 / Helper.FPS;
 
             b.startFriction();
-
-            cueTaken = false;
-            game.sound.play("clash-old.wav");
-        }
-        else if (game.movingWhiteBall)
-        {
-            game.movingWhiteBall = false;
+            aiming = false;
+            game.sound.play("clash-old.wav", -20.0f);
         }
     }
 
@@ -115,22 +114,7 @@ public final class Shoot implements MouseListener, MouseMotionListener
         int middleX = e.getX();
         int middleY = e.getY();
 
-        if (cueTaken)
-        {
-            cue = new HashMap<>();
-            cue.put("x1", middleX);
-            cue.put("y1", middleY);
-
-            int    pa = 300;
-            double dx = (b.x) + 10 - middleX;
-            double dy = (b.y) + 10 - middleY;
-            double i  = pa / (Math.sqrt(dx * dx + dy * dy));
-
-            cue.put("x2", (int) ((dx * i) + middleX));
-            cue.put("y2", (int) ((dy * i) + middleY));
-
-        }
-        else if (game.movingWhiteBall)
+        if (game.movingWhiteBall)
         {
             b.x = middleX;
             b.y = middleY;
@@ -139,10 +123,12 @@ public final class Shoot implements MouseListener, MouseMotionListener
 
     @Override public void mouseMoved(MouseEvent e)
     {
+        if(game.indexOfWhiteBall == -1) return;
+
+        Ball b = game.balls.get(game.indexOfWhiteBall);
+
         if (game.movingWhiteBall)
         {
-            Ball b = game.balls.get(game.indexOfWhiteBall);
-
             double nx = e.getX(), ny = e.getY();
 
             double xr = Helper.TB + b.r;
@@ -162,6 +148,25 @@ public final class Shoot implements MouseListener, MouseMotionListener
 
             b.x = nx - b.r;
             b.y = ny - b.r;
+        }
+        else if(aiming)
+        {
+
+            aim_oval_x = e.getX() - aim_r;
+            aim_oval_y = e.getY() - aim_r * 2;
+
+            aim_line_x1 = (int) aim_oval_x + aim_r;
+            aim_line_y1 = (int) aim_oval_y + aim_r;
+
+            double pa = Math.hypot(aim_line_x1 - b.getCenterX(), aim_line_y1 - b.getCenterY()) - b.r * 2;
+            double dx = (b.x) + b.r - aim_line_x1;
+            double dy = (b.y) + b.r - aim_line_y1;
+            double i  = pa / (Math.sqrt(dx * dx + dy * dy));
+
+            aim_line_x2 = (int) ((dx * i) + aim_line_x1);
+            aim_line_y2 = (int) ((dy * i) + aim_line_y1);
+
+            cue = true;
         }
     }
 }

@@ -34,6 +34,7 @@ public final class Ball
         setXY(number);
     }
 
+
     public void update()
     {
         if (dy != 0 || dx != 0)
@@ -43,11 +44,9 @@ public final class Ball
 
             if(Helper.FR) handleBallFriction();
         }
-
-        ifBounds();
     }
 
-    private void ifBounds()
+    protected void handleBounds()
     {
         boolean bound = false;
 
@@ -108,7 +107,7 @@ public final class Ball
     {
         double k = dx * dx + dy * dy;
 
-        k = Math.sqrt(k) * Helper.FPS / 3;
+        k = Math.sqrt(k) * Helper.FPS / 2;
 
         if (k == 0) return;
 
@@ -154,16 +153,18 @@ public final class Ball
         graphics2D.setFont(new Font("Arial Bold", Font.BOLD, 8));
         graphics2D.drawString(String.valueOf(number), (float) (x + (number >= 10 ? r - 4.6 : r - 2.6)), (float) (y + r + 2.6));
 
+        //graphics2D.drawString((int) getCenterX() + "-" + (int) x + ":" + (int) getCenterY() + "-" + (int) y, (float) x, (float) y);
+
     }
 
     public double getCenterX()
     {
-        return this.x - r;
+        return this.x + r;
     }
 
     public double getCenterY()
     {
-        return this.y - r;
+        return this.y + r;
     }
 }
 
