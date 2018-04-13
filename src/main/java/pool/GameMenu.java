@@ -77,7 +77,7 @@ public final class GameMenu extends JFrame implements ActionListener
                 Helper.HA = !Helper.HA;
                 break;
             case "About":
-                JOptionPane.showMessageDialog(this, "Ugly Pool game by Maharramoff Shamkhal", "About the author", JOptionPane.PLAIN_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Ugly Pool game by Maharramoff Shamkhal\nDedicated to my 8 years old son Elay Maharramli who is actively learning programming.", "About", JOptionPane.PLAIN_MESSAGE);
                 break;
         }
     }
