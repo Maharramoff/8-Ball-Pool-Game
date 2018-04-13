@@ -3,3 +3,4 @@ src/test/
 target/
 /.idea/
 /pool.game.iml
+/src/main/java/pool/LabeledProgressBarSample.java

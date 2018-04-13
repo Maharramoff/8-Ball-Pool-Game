@@ -6,6 +6,7 @@ import java.util.HashMap;
 public final class Helper
 {
     protected static final int FPS = 120;
+    protected static final int BX = 100, BY = 100;  // Background x y
     protected static final int SW  = 640, SH = 358; // Screen width and height
     protected static final int     TB = 20; // Table border width
     protected static final int     HR = 14; // Hole radius
@@ -22,12 +23,12 @@ public final class Helper
 
     protected static final HashMap<String, int[]> HOLES = new HashMap<String, int[]>()
     {{
-        put("TL", new int[]{TB / 2, TB / 2});
-        put("TC", new int[]{SW / 2, HM});
-        put("TR", new int[]{SW - (TB / 2 + (HR * 2)), TB / 2});
-        put("BL", new int[]{TB / 2, SH - (TB / 2 + (HR * 2))});
-        put("BC", new int[]{SW / 2, SH - (HM + (HR * 2))});
-        put("BR", new int[]{SW - (TB / 2 + (HR * 2)), SH - (TB / 2 + (HR * 2))});
+        put("TL", new int[]{Helper.BX + TB / 2, Helper.BY + TB / 2});
+        put("TC", new int[]{Helper.BX + SW / 2, Helper.BY + HM});
+        put("TR", new int[]{Helper.BX + SW - (TB / 2 + (HR * 2)), Helper.BY + TB / 2});
+        put("BL", new int[]{Helper.BX + TB / 2, Helper.BY + SH - (TB / 2 + (HR * 2))});
+        put("BC", new int[]{Helper.BX + SW / 2, Helper.BY + SH - (HM + (HR * 2))});
+        put("BR", new int[]{Helper.BX + SW - (TB / 2 + (HR * 2)), Helper.BY + SH - (TB / 2 + (HR * 2))});
     }};
 
     protected static final HashMap<String, int[]> ARCS = new HashMap<String, int[]>()

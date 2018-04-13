@@ -6,7 +6,7 @@
 - [ ] Computer opponent AI
 - [ ] View sunk balls
 
-![Screen](https://raw.githubusercontent.com/Maharramoff/pool/master/screen.png)
+![Screen](https://raw.githubusercontent.com/Maharramoff/pool/master/screen-13.04.2018.png)
 
 
 Everything is drawn using the [Graphics class](https://docs.oracle.com/javase/7/docs/api/java/awt/Graphics.html)

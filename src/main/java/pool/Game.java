@@ -13,7 +13,7 @@ import static java.lang.Math.abs;
 public final class Game extends JPanel implements Runnable
 {
     private Thread thread;
-    private   boolean isRunning       = true;
+    protected boolean isRunning       = true;
     private   boolean whiteBallFallen = false;
     protected boolean readyForShoot   = true;
     public    boolean movingWhiteBall = true;
@@ -32,11 +32,11 @@ public final class Game extends JPanel implements Runnable
         setDoubleBuffered(true);
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        setPreferredSize(new Dimension(Helper.SW, Helper.SH));
-        setSize(Helper.SW, Helper.SH);
+        setPreferredSize(new Dimension(Helper.SW + Helper.BX * 2, Helper.SH + Helper.BY * 2));
+        setSize(Helper.SW + Helper.BX * 2, Helper.SH + Helper.BY * 2);
         setFocusable(true);
         requestFocus();
-        this.shoot = new Shoot(this);
+        shoot = new Shoot(this);
     }
 
     @Override
@@ -182,19 +182,24 @@ public final class Game extends JPanel implements Runnable
 
     private void tableRender(Graphics2D graphics2D)
     {
+        // Background
+        graphics2D.setColor(Color.BLACK.brighter());
+        graphics2D.fillRect(0, 0, Helper.SW + Helper.BX * 2, Helper.SH + Helper.BY * 2);
+
+
         // Borders
-        RoundRectangle2D roundedRectangle = new RoundRectangle2D.Float(0, 0, Helper.SW, Helper.SH, 30, 30);
+        RoundRectangle2D roundedRectangle = new RoundRectangle2D.Float(Helper.BX, Helper.BY, Helper.SW, Helper.SH, 30, 30);
         graphics2D.setColor(Helper.BC);
         graphics2D.fill(roundedRectangle);
 
         // Table
         graphics2D.setColor(Helper.TC);
-        graphics2D.fillRect(Helper.TB, Helper.TB, Helper.SW - Helper.TB * 2, Helper.SH - Helper.TB * 2);
+        graphics2D.fillRect(Helper.BX + Helper.TB, Helper.BY + Helper.TB, Helper.SW - Helper.TB * 2, Helper.SH - Helper.TB * 2);
 
         // Table white line and dot
         graphics2D.setColor(Helper.BALL_WHITE);
-        graphics2D.drawLine(Helper.SW - Helper.SW / 4, Helper.TB, Helper.SW - Helper.SW / 4, Helper.SH - Helper.TB);
-        graphics2D.drawOval(Helper.SW / 4, Helper.SH / 2, 2, 2);
+        graphics2D.drawLine(Helper.BX + Helper.SW - Helper.SW / 4, Helper.BY + Helper.TB, Helper.BX + Helper.SW - Helper.SW / 4, Helper.BY + Helper.SH - Helper.TB);
+        graphics2D.drawOval(Helper.BX + Helper.SW / 4, Helper.BY + Helper.SH / 2, 2, 2);
 
 
         // Holes
@@ -202,7 +207,7 @@ public final class Game extends JPanel implements Runnable
         {
             Helper.HOLES.forEach((String key, int[] value) ->
              {
-                 graphics2D.setColor(Color.BLACK);
+                 graphics2D.setColor(new Color(46, 24, 12));
                  graphics2D.fillOval(Helper.HOLES.get(key)[0], Helper.HOLES.get(key)[1], Helper.HR * 2, Helper.HR * 2);
                  // Hole arcs
                  graphics2D.setColor(Helper.HAC);

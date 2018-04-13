@@ -17,13 +17,13 @@ public final class Ball
 
         if (number == 0)
         {
-            x = Helper.SW / 4 - r;
-            y = Helper.SH / 2 - r;
+            x = Helper.BX + Helper.SW / 4 - r;
+            y = Helper.BY + Helper.SH / 2 - r;
         }
         else
         {
-            x = (Helper.SW - Helper.SW / 4) + (- (r * 2 * (6 - row))) + 4 - row;
-            y = (Helper.SH / 2) - (r * 2 * (((row * (row + 1) / 2) - 1) - number)) + (row - 3) * r - r;
+            x = (Helper.BX + Helper.SW - Helper.SW / 4) + (- (r * 2 * (6 - row))) + 4 - row;
+            y = (Helper.BY + Helper.SH / 2) - (r * 2 * (((row * (row + 1) / 2) - 1) - number)) + (row - 3) * r - r;
         }
     }
 
@@ -50,26 +50,26 @@ public final class Ball
     {
         boolean bound = false;
 
-        if (x > Helper.SW - (Helper.TB + 2 * r))
+        if (x > Helper.BX + Helper.SW - (Helper.TB + 2 * r))
         {
             dx = -Math.abs(dx);
             ddx = Math.abs(ddx);
             bound = true;
         }
-        else if (x < Helper.TB)
+        else if (x < Helper.BX + Helper.TB)
         {
             dx = Math.abs(dx);
             ddx = -Math.abs(ddx);
             bound = true;
         }
 
-        if (y < Helper.TB)
+        if (y < Helper.BY + Helper.TB)
         {
             dy = Math.abs(dy);
             ddy = -Math.abs(ddy);
             bound = true;
         }
-        else if (y > Helper.SH - (Helper.TB + 2 * r))
+        else if (y > Helper.BY + Helper.SH - (Helper.TB + 2 * r))
         {
             dy = -Math.abs(dy);
             ddy = Math.abs(ddy);
