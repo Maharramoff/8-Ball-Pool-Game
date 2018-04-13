@@ -8,10 +8,12 @@ import java.awt.event.MouseMotionListener;
 public final class Shoot implements MouseListener, MouseMotionListener
 {
     private Game                     game;
-    protected boolean aiming = false, cue = true;
+    protected boolean aiming = false;
+    private   boolean cue    = true;
     private   int     power  = 20, aim_r = 10;
     private double aim_oval_x = 0, aim_oval_y = 0;
     private int aim_line_x1, aim_line_x2, aim_line_y1, aim_line_y2;
+    private int cue_x1, cue_x2, cue_y1, cue_y2, cue_head_x1, cue_head_y1, cue_middle_x1, cue_middle_y1;
 
     Shoot(Game g)
     {
@@ -24,10 +26,27 @@ public final class Shoot implements MouseListener, MouseMotionListener
     {
         if (cue && !game.movingWhiteBall && game.readyForShoot)
         {
+            g.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+            g.setRenderingHint(
+                    RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON
+            );
+
             g.setColor(Helper.BALL_WHITE);
             g.setStroke(new BasicStroke(1));
             g.drawOval((int) aim_oval_x, (int) aim_oval_y, aim_r * 2, aim_r * 2);
             g.drawLine(aim_line_x1, aim_line_y1, aim_line_x2, aim_line_y2);
+            g.setColor(Helper.BC.darker());
+            g.setStroke(new BasicStroke(4));
+            g.drawLine(cue_x1, cue_y1, cue_x2, cue_y2);
+//            g.setColor(Color.WHITE);
+//            g.drawLine(cue_head_x1, cue_head_y1, cue_x2, cue_y2);
+            g.setColor(Helper.BALL_WHITE);
+            g.drawLine(cue_middle_x1, cue_middle_y1, cue_x2, cue_y2);
+
         }
     }
 
@@ -152,6 +171,7 @@ public final class Shoot implements MouseListener, MouseMotionListener
         else if(aiming)
         {
 
+            // Aiming line
             aim_oval_x = e.getX() - aim_r;
             aim_oval_y = e.getY() - aim_r * 2;
 
@@ -165,6 +185,21 @@ public final class Shoot implements MouseListener, MouseMotionListener
 
             aim_line_x2 = (int) ((dx * i) + aim_line_x1);
             aim_line_y2 = (int) ((dy * i) + aim_line_y1);
+
+            // Cue
+            double angle = Math.atan2(aim_line_x1 - b.getCenterX(), aim_line_y1 - b.getCenterY());
+            cue_x2 = (int) (b.getCenterX() - Math.sin(angle) * 20);
+            cue_y2 = (int) (b.getCenterY() - Math.cos(angle) * 20);
+            cue_x1 = (int) (cue_x2 - Math.sin(angle) * 250);
+            cue_y1 = (int) (cue_y2 - Math.cos(angle) * 250);
+
+            //Cue middle
+            cue_middle_x1 = (int) (cue_x2 - Math.sin(angle) * 150);
+            cue_middle_y1 = (int) (cue_y2 - Math.cos(angle) * 150);
+
+            // Cue head
+            cue_head_x1 = (int) (cue_x2 - Math.sin(angle) * 4);
+            cue_head_y1 = (int) (cue_y2 - Math.cos(angle) * 4);
 
             cue = true;
         }

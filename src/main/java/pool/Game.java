@@ -23,7 +23,8 @@ public final class Game extends JPanel implements Runnable
 
     protected ArrayList<Ball>          balls;
     Sound sound = new Sound();
-    private Shoot shoot = new Shoot(this);
+    private Shoot shoot;
+
 
     Game()
     {
@@ -35,6 +36,7 @@ public final class Game extends JPanel implements Runnable
         setSize(Helper.SW, Helper.SH);
         setFocusable(true);
         requestFocus();
+        this.shoot = new Shoot(this);
     }
 
     @Override
