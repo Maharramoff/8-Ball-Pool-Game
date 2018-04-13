@@ -1,7 +1,7 @@
 #### Work in progress 🔥 :sunglasses: <img width="16px" src="https://lipis.github.io/flag-icon-css/flags/4x3/az.svg">
 
 #### TODO
-- [ ] Shooting power
+- [x] Shooting power
 - [ ] Aiming calculator
 - [ ] Computer opponent AI
 - [ ] View sunk balls
