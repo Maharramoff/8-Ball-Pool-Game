@@ -336,7 +336,11 @@ public final class Game extends JPanel implements Runnable
 
     private void reDrawBalls(Graphics2D graphics2D)
     {
-        balls.forEach(ball -> ball.draw(graphics2D));
+        for (int i = 0; i < balls.size(); i++)
+        {
+            Ball ball = balls.get(i);
+            ball.draw(graphics2D);
+        }
     }
 
 }
