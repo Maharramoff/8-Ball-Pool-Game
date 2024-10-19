@@ -1,4 +1,4 @@
-package pool;
+package io.github.maharramoff.game.pool;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
