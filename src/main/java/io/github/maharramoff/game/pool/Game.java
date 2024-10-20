@@ -187,32 +187,34 @@ public final class Game extends JPanel implements Runnable
         graphics2D.fillRect(0, 0, Table.WIDTH + GameSettings.SCREEN_MARGIN * 2, Table.HEIGHT + GameSettings.SCREEN_MARGIN * 2);
 
 
-        // Borders
+        // Rails
         RoundRectangle2D roundedRectangle = new RoundRectangle2D.Float(GameSettings.SCREEN_MARGIN, GameSettings.SCREEN_MARGIN, Table.WIDTH, Table.HEIGHT, 30, 30);
         graphics2D.setColor(Table.RAIL_COLOR);
         graphics2D.fill(roundedRectangle);
 
-        // Table
+        // Play Field
         graphics2D.setColor(Table.FIELD_COLOR);
         graphics2D.fillRect(GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH, GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH, Table.WIDTH - Table.RAIL_WIDTH * 2, Table.HEIGHT - Table.RAIL_WIDTH * 2);
 
-        // Table white line and dot
+        // Head String
         graphics2D.setColor(Ball.BALL_WHITE);
         graphics2D.drawLine(GameSettings.SCREEN_MARGIN + Table.WIDTH - Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH, GameSettings.SCREEN_MARGIN + Table.WIDTH - Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.HEIGHT - Table.RAIL_WIDTH);
+
+        // Foot Spot
         graphics2D.drawOval(GameSettings.SCREEN_MARGIN + Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.HEIGHT / 2, 2, 2);
 
 
-        // Holes
+        // Pockets
         if(GameSettings.holesEnabled)
         {
             Pocket.POSITION_MAP.forEach((PocketPosition key, int[] value) ->
              {
                  graphics2D.setColor(new Color(46, 24, 12));
                  graphics2D.fillOval(Pocket.POSITION_MAP.get(key)[0], Pocket.POSITION_MAP.get(key)[1], Pocket.RADIUS * 2, Pocket.RADIUS * 2);
-                 // Hole arcs
-                 graphics2D.setColor(Arc.COLOR);
+                 // Pocket Liners
+                 graphics2D.setColor(PocketLiner.COLOR);
                  graphics2D.setStroke(new BasicStroke(2));
-                 graphics2D.drawArc(Pocket.POSITION_MAP.get(key)[0], Pocket.POSITION_MAP.get(key)[1], Pocket.RADIUS * 2, Pocket.RADIUS * 2, Arc.ARCS.get(key)[0], Arc.ARCS.get(key)[1]);
+                 graphics2D.drawArc(Pocket.POSITION_MAP.get(key)[0], Pocket.POSITION_MAP.get(key)[1], Pocket.RADIUS * 2, Pocket.RADIUS * 2, PocketLiner.POSITION_MAP.get(key)[0], PocketLiner.POSITION_MAP.get(key)[1]);
 
              });
         }
