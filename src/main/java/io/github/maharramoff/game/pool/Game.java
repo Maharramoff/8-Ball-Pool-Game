@@ -205,14 +205,14 @@ public final class Game extends JPanel implements Runnable
         // Holes
         if(GameSettings.holesEnabled)
         {
-            Hole.HOLES.forEach((HolePosition key, int[] value) ->
+            Pocket.POSITION_MAP.forEach((PocketPosition key, int[] value) ->
              {
                  graphics2D.setColor(new Color(46, 24, 12));
-                 graphics2D.fillOval(Hole.HOLES.get(key)[0], Hole.HOLES.get(key)[1], Hole.HOLE_RADIUS * 2, Hole.HOLE_RADIUS * 2);
+                 graphics2D.fillOval(Pocket.POSITION_MAP.get(key)[0], Pocket.POSITION_MAP.get(key)[1], Pocket.RADIUS * 2, Pocket.RADIUS * 2);
                  // Hole arcs
                  graphics2D.setColor(Arc.COLOR);
                  graphics2D.setStroke(new BasicStroke(2));
-                 graphics2D.drawArc(Hole.HOLES.get(key)[0], Hole.HOLES.get(key)[1], Hole.HOLE_RADIUS * 2, Hole.HOLE_RADIUS * 2, Arc.ARCS.get(key)[0], Arc.ARCS.get(key)[1]);
+                 graphics2D.drawArc(Pocket.POSITION_MAP.get(key)[0], Pocket.POSITION_MAP.get(key)[1], Pocket.RADIUS * 2, Pocket.RADIUS * 2, Arc.ARCS.get(key)[0], Arc.ARCS.get(key)[1]);
 
              });
         }
@@ -313,14 +313,14 @@ public final class Game extends JPanel implements Runnable
 
         if (movingWhiteBall) return false;
 
-        Map<HolePosition, int[]> map = Hole.HOLES;
+        Map<PocketPosition, int[]> map = Pocket.POSITION_MAP;
 
-        for (Map.Entry<HolePosition, int[]> entry : map.entrySet())
+        for (Map.Entry<PocketPosition, int[]> entry : map.entrySet())
         {
-            double dx   = entry.getValue()[0] + Hole.HOLE_RADIUS - B.getCenterX();
-            double dy   = entry.getValue()[1] + Hole.HOLE_RADIUS - B.getCenterY();
+            double dx   = entry.getValue()[0] + Pocket.RADIUS - B.getCenterX();
+            double dy   = entry.getValue()[1] + Pocket.RADIUS - B.getCenterY();
             double dist = Math.sqrt(dx * dx + dy * dy);
-            double min  = Math.sqrt((Hole.HOLE_RADIUS + B.r) * (Hole.HOLE_RADIUS + B.r)) - (B.r - Hole.HOLE_MARGIN);
+            double min  = Math.sqrt((Pocket.RADIUS + B.r) * (Pocket.RADIUS + B.r)) - (B.r - Pocket.MARGIN);
 
             if (dist <= min)
             {
