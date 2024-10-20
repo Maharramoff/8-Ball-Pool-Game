@@ -32,8 +32,8 @@ public final class Game extends JPanel implements Runnable
         setDoubleBuffered(true);
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-        setPreferredSize(new Dimension(Helper.SW + Helper.BX * 2, Helper.SH + Helper.BY * 2));
-        setSize(Helper.SW + Helper.BX * 2, Helper.SH + Helper.BY * 2);
+        setPreferredSize(new Dimension(Table.WIDTH + GameSettings.SCREEN_MARGIN * 2, Table.HEIGHT + GameSettings.SCREEN_MARGIN * 2));
+        setSize(Table.WIDTH + GameSettings.SCREEN_MARGIN * 2, Table.HEIGHT + GameSettings.SCREEN_MARGIN * 2);
         setFocusable(true);
         requestFocus();
         shoot = new Shoot(this);
@@ -146,7 +146,7 @@ public final class Game extends JPanel implements Runnable
         generateBalls();
 
         long startTime, timeMillis, waitTime;
-        long targetTime = 1000 / Helper.FPS;
+        long targetTime = 1000 / GameSettings.TARGET_FPS;
 
         while (isRunning)
         {
@@ -184,35 +184,35 @@ public final class Game extends JPanel implements Runnable
     {
         // Background
         graphics2D.setColor(Color.BLACK.brighter());
-        graphics2D.fillRect(0, 0, Helper.SW + Helper.BX * 2, Helper.SH + Helper.BY * 2);
+        graphics2D.fillRect(0, 0, Table.WIDTH + GameSettings.SCREEN_MARGIN * 2, Table.HEIGHT + GameSettings.SCREEN_MARGIN * 2);
 
 
         // Borders
-        RoundRectangle2D roundedRectangle = new RoundRectangle2D.Float(Helper.BX, Helper.BY, Helper.SW, Helper.SH, 30, 30);
-        graphics2D.setColor(Helper.BC);
+        RoundRectangle2D roundedRectangle = new RoundRectangle2D.Float(GameSettings.SCREEN_MARGIN, GameSettings.SCREEN_MARGIN, Table.WIDTH, Table.HEIGHT, 30, 30);
+        graphics2D.setColor(Table.RAIL_COLOR);
         graphics2D.fill(roundedRectangle);
 
         // Table
-        graphics2D.setColor(Helper.TC);
-        graphics2D.fillRect(Helper.BX + Helper.TB, Helper.BY + Helper.TB, Helper.SW - Helper.TB * 2, Helper.SH - Helper.TB * 2);
+        graphics2D.setColor(Table.FIELD_COLOR);
+        graphics2D.fillRect(GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH, GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH, Table.WIDTH - Table.RAIL_WIDTH * 2, Table.HEIGHT - Table.RAIL_WIDTH * 2);
 
         // Table white line and dot
-        graphics2D.setColor(Helper.BALL_WHITE);
-        graphics2D.drawLine(Helper.BX + Helper.SW - Helper.SW / 4, Helper.BY + Helper.TB, Helper.BX + Helper.SW - Helper.SW / 4, Helper.BY + Helper.SH - Helper.TB);
-        graphics2D.drawOval(Helper.BX + Helper.SW / 4, Helper.BY + Helper.SH / 2, 2, 2);
+        graphics2D.setColor(Ball.BALL_WHITE);
+        graphics2D.drawLine(GameSettings.SCREEN_MARGIN + Table.WIDTH - Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH, GameSettings.SCREEN_MARGIN + Table.WIDTH - Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.HEIGHT - Table.RAIL_WIDTH);
+        graphics2D.drawOval(GameSettings.SCREEN_MARGIN + Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.HEIGHT / 2, 2, 2);
 
 
         // Holes
-        if(Helper.HA)
+        if(GameSettings.holesEnabled)
         {
-            Helper.HOLES.forEach((String key, int[] value) ->
+            Hole.HOLES.forEach((HolePosition key, int[] value) ->
              {
                  graphics2D.setColor(new Color(46, 24, 12));
-                 graphics2D.fillOval(Helper.HOLES.get(key)[0], Helper.HOLES.get(key)[1], Helper.HR * 2, Helper.HR * 2);
+                 graphics2D.fillOval(Hole.HOLES.get(key)[0], Hole.HOLES.get(key)[1], Hole.HOLE_RADIUS * 2, Hole.HOLE_RADIUS * 2);
                  // Hole arcs
-                 graphics2D.setColor(Helper.HAC);
+                 graphics2D.setColor(Arc.COLOR);
                  graphics2D.setStroke(new BasicStroke(2));
-                 graphics2D.drawArc(Helper.HOLES.get(key)[0], Helper.HOLES.get(key)[1], Helper.HR * 2, Helper.HR * 2, Helper.ARCS.get(key)[0], Helper.ARCS.get(key)[1]);
+                 graphics2D.drawArc(Hole.HOLES.get(key)[0], Hole.HOLES.get(key)[1], Hole.HOLE_RADIUS * 2, Hole.HOLE_RADIUS * 2, Arc.ARCS.get(key)[0], Arc.ARCS.get(key)[1]);
 
              });
         }
@@ -309,18 +309,18 @@ public final class Game extends JPanel implements Runnable
 
     private boolean ifPocket(Ball B)
     {
-        if(!Helper.HA) return false;
+        if(!GameSettings.holesEnabled) return false;
 
         if (movingWhiteBall) return false;
 
-        Map<String, int[]> map = Helper.HOLES;
+        Map<HolePosition, int[]> map = Hole.HOLES;
 
-        for (Map.Entry<String, int[]> entry : map.entrySet())
+        for (Map.Entry<HolePosition, int[]> entry : map.entrySet())
         {
-            double dx   = entry.getValue()[0] + Helper.HR - B.getCenterX();
-            double dy   = entry.getValue()[1] + Helper.HR - B.getCenterY();
+            double dx   = entry.getValue()[0] + Hole.HOLE_RADIUS - B.getCenterX();
+            double dy   = entry.getValue()[1] + Hole.HOLE_RADIUS - B.getCenterY();
             double dist = Math.sqrt(dx * dx + dy * dy);
-            double min  = Math.sqrt((Helper.HR + B.r) * (Helper.HR + B.r)) - (B.r - Helper.HM);
+            double min  = Math.sqrt((Hole.HOLE_RADIUS + B.r) * (Hole.HOLE_RADIUS + B.r)) - (B.r - Hole.HOLE_MARGIN);
 
             if (dist <= min)
             {

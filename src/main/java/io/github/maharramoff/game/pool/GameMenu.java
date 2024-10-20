@@ -69,12 +69,12 @@ public final class GameMenu extends JFrame implements ActionListener
                 game.createNewGame();
                 break;
             case "Friction on/off":
-                System.out.println("Friction turned " + (Helper.FR ? "Off" : "On") + "");
-                Helper.FR = !Helper.FR;
+                System.out.println("Friction turned " + (GameSettings.frictionEnabled ? "Off" : "On") + "");
+                GameSettings.frictionEnabled = !GameSettings.frictionEnabled;
                 break;
             case "Holes on/off":
-                System.out.println("Holes turned " + (Helper.HA ? "Off" : "On") + "");
-                Helper.HA = !Helper.HA;
+                System.out.println("Holes turned " + (GameSettings.holesEnabled ? "Off" : "On") + "");
+                GameSettings.holesEnabled = !GameSettings.holesEnabled;
                 break;
             case "About":
                 JOptionPane.showMessageDialog(this, "Ugly Pool game by Maharramoff Shamkhal\nDedicated to my 8 years old son Elay Maharramli who is actively learning programming.", "About", JOptionPane.PLAIN_MESSAGE);

@@ -34,9 +34,9 @@ public final class Shoot implements MouseListener, MouseMotionListener
     {
 
 
-        g.setColor(Helper.BALL_WHITE);
+        g.setColor(Ball.BALL_WHITE);
         g.setStroke(new BasicStroke(1));
-        g.drawRect(Helper.SW + Helper.BX + 20, Helper.SH/2, 20, 200);
+        g.drawRect(Table.WIDTH + GameSettings.SCREEN_MARGIN + 20, Table.HEIGHT /2, 20, 200);
 
         if (cue && !game.movingWhiteBall && game.readyForShoot)
         {
@@ -52,19 +52,19 @@ public final class Shoot implements MouseListener, MouseMotionListener
             g.setStroke(new BasicStroke(1));
             g.drawOval((int) aim_oval_x, (int) aim_oval_y, aim_r * 2, aim_r * 2);
             g.drawLine(aim_line_x1, aim_line_y1, aim_line_x2, aim_line_y2);
-            g.setColor(Helper.BC.darker().darker());
+            g.setColor(Table.RAIL_COLOR.darker().darker());
             g.setStroke(new BasicStroke(4));
             g.drawLine(cue_x1, cue_y1, cue_x2, cue_y2);
-            g.setColor(Helper.BALL_WHITE);
+            g.setColor(Ball.BALL_WHITE);
             g.drawLine(cue_middle_x1, cue_middle_y1, cue_x2, cue_y2);
             g.setFont(new Font("Arial Bold", Font.BOLD, 24));
 
             // Power draw
-            Point2D start = new Point2D.Float(Helper.SW + Helper.BX - 10, 670);
+            Point2D start = new Point2D.Float(Table.WIDTH + GameSettings.SCREEN_MARGIN - 10, 670);
             Point2D end   = new Point2D.Float(0, power * 10);
             Color[] colors = {Color.green, Color.yellow, Color.red};
             g.setPaint(new LinearGradientPaint(start, end, fracs, colors));
-            g.fillRect(Helper.SW + Helper.BX + 20, Helper.SH/2 + (200 - power * 10), 20, power * 10);
+            g.fillRect(Table.WIDTH + GameSettings.SCREEN_MARGIN + 20, Table.HEIGHT /2 + (200 - power * 10), 20, power * 10);
 
         }
     }
@@ -139,8 +139,8 @@ public final class Shoot implements MouseListener, MouseMotionListener
             double vY  = aim_oval_y - b.y;
             double len = Math.sqrt((vX * vX) + (vY * vY));
 
-            b.dx = vX / len * power * 60 / Helper.FPS;
-            b.dy = vY / len * power * 60 / Helper.FPS;
+            b.dx = vX / len * power * 60 / GameSettings.TARGET_FPS;
+            b.dy = vY / len * power * 60 / GameSettings.TARGET_FPS;
 
             b.startFriction();
             aiming = false;
@@ -184,11 +184,11 @@ public final class Shoot implements MouseListener, MouseMotionListener
         {
             double nx = e.getX(), ny = e.getY();
 
-            double xr = Helper.BX + Helper.TB + b.r;
-            double xl = Helper.BX + Helper.SW - b.r - Helper.TB;
+            double xr = GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH + b.r;
+            double xl = GameSettings.SCREEN_MARGIN + Table.WIDTH - b.r - Table.RAIL_WIDTH;
 
-            double yb = Helper.BY + Helper.SH - b.r - Helper.TB;
-            double yt = Helper.BY + Helper.TB + b.r;
+            double yb = GameSettings.SCREEN_MARGIN + Table.HEIGHT - b.r - Table.RAIL_WIDTH;
+            double yt = GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH + b.r;
 
             if (nx < xr)
                 nx = xr;
@@ -261,7 +261,7 @@ public final class Shoot implements MouseListener, MouseMotionListener
                     while (mouseDown)
                     {
                         long startTime, timeMillis, waitTime;
-                        long targetTime = 1000 / Helper.FPS;
+                        long targetTime = 1000 / GameSettings.TARGET_FPS;
 
                         startTime = System.nanoTime();
 
@@ -281,7 +281,7 @@ public final class Shoot implements MouseListener, MouseMotionListener
                         {
                             frameCount++;
 
-                            if (frameCount > Helper.FPS / 20)
+                            if (frameCount > GameSettings.TARGET_FPS / 20)
                             {
                                 frameCount = 0;
 
