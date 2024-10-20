@@ -198,10 +198,10 @@ public final class Game extends JPanel implements Runnable
 
         // Head String
         graphics2D.setColor(Ball.BALL_WHITE);
-        graphics2D.drawLine(GameSettings.SCREEN_MARGIN + Table.WIDTH - Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH, GameSettings.SCREEN_MARGIN + Table.WIDTH - Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.HEIGHT - Table.RAIL_WIDTH);
+        graphics2D.drawLine(GameSettings.SCREEN_MARGIN + Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH, GameSettings.SCREEN_MARGIN + Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.HEIGHT - Table.RAIL_WIDTH);
 
         // Foot Spot
-        graphics2D.drawOval(GameSettings.SCREEN_MARGIN + Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.HEIGHT / 2, 2, 2);
+        graphics2D.drawOval(GameSettings.SCREEN_MARGIN + Table.WIDTH - Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.HEIGHT / 2, 2, 2);
 
 
         // Pockets
