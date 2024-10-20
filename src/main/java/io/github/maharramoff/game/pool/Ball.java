@@ -5,7 +5,7 @@ import java.awt.*;
 public final class Ball
 {
     double x, y;
-    int radius, number;
+    int radius = 10, number;
     double velocityX, velocityY;
     private double accelerationY, accelerationX;
     private final Sound sound = new Sound();
@@ -39,11 +39,16 @@ public final class Ball
 
     Ball(int ballNumber, Color color, BallType type)
     {
-        radius = 10;
-        this.number = ballNumber;
+        this.number = validateNumber(ballNumber, type);
         this.color = color;
         this.type = type;
         setXY(number);
+    }
+    
+    Ball(int radius, int ballNumber, Color color, BallType type)
+    {
+        new Ball(ballNumber, color, type);
+        this.radius = radius;
     }
 
     private static final class BallPosition
@@ -263,7 +268,7 @@ public final class Ball
             graphics2D.setColor(BallColor.WHITE);
             graphics2D.fillOval((int) x, (int) y, 2 * radius, 2 * radius);
             graphics2D.setColor(color);
-            graphics2D.fillRoundRect((int) (x), (int) (y + radius / 2), 20, 10, 7, 7);
+            graphics2D.fillRoundRect((int) (x), (int) (y + radius / 2), 2 * radius, radius, 7, 7);
             graphics2D.setColor(BallColor.WHITE);
             graphics2D.fillOval((int) (x + radius / 2), (int) (y + radius / 2), radius, radius);
             graphics2D.setColor(BallColor.BLACK);
@@ -296,6 +301,34 @@ public final class Ball
     public double getCenterY()
     {
         return this.y + radius;
+    }
+
+    private int validateNumber(int number, BallType type)
+    {
+        switch (type)
+        {
+            case SOLID:
+                if (number < 1 || number > 8)
+                {
+                    throw new IllegalArgumentException("Solid balls must have a number between 1 and 8.");
+                }
+                break;
+            case STRIPED:
+                if (number < 9 || number > 15)
+                {
+                    throw new IllegalArgumentException("Striped balls must have a number between 9 and 15.");
+                }
+                break;
+            case CUE:
+                if (number != 0)
+                {
+                    throw new IllegalArgumentException("Cue ball must have a number 0.");
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown ball type.");
+        }
+        return number;
     }
 }
 
