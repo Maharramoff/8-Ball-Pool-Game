@@ -12,12 +12,12 @@ import static java.lang.Math.abs;
 public final class Shoot implements MouseListener, MouseMotionListener
 {
     private Game game;
-    volatile private boolean mouseDown  = false;
-    volatile private boolean isRunning  = false;
-    private          int     frameCount = 0;
-    protected        boolean aiming     = false;
-    private          boolean cue        = true;
-    private          int     power      = 0, aim_r = 10;
+    volatile private boolean mouseDown = false;
+    volatile private boolean isRunning = false;
+    private int frameCount = 0;
+    protected boolean aiming = false;
+    private boolean cue = true;
+    private int power = 0, aim_r = 10;
     private double aim_oval_x = 0, aim_oval_y = 0;
     private int aim_line_x1, aim_line_x2, aim_line_y1, aim_line_y2;
     private int cue_x1, cue_x2, cue_y1, cue_y2, cue_head_x1, cue_head_y1, cue_middle_x1, cue_middle_y1;
@@ -34,9 +34,9 @@ public final class Shoot implements MouseListener, MouseMotionListener
     {
 
 
-        g.setColor(Ball.BALL_WHITE);
+        g.setColor(Color.WHITE);
         g.setStroke(new BasicStroke(1));
-        g.drawRect(Table.WIDTH + GameSettings.SCREEN_MARGIN + 20, Table.HEIGHT /2, 20, 200);
+        g.drawRect(Table.WIDTH + GameSettings.SCREEN_MARGIN + 20, Table.HEIGHT / 2, 20, 200);
 
         if (cue && !game.movingWhiteBall && game.readyForShoot)
         {
@@ -55,25 +55,27 @@ public final class Shoot implements MouseListener, MouseMotionListener
             g.setColor(Table.RAIL_COLOR.darker().darker());
             g.setStroke(new BasicStroke(4));
             g.drawLine(cue_x1, cue_y1, cue_x2, cue_y2);
-            g.setColor(Ball.BALL_WHITE);
+            g.setColor(Color.WHITE);
             g.drawLine(cue_middle_x1, cue_middle_y1, cue_x2, cue_y2);
             g.setFont(new Font("Arial Bold", Font.BOLD, 24));
 
             // Power draw
-            Point2D start = new Point2D.Float(Table.WIDTH + GameSettings.SCREEN_MARGIN - 10, 670);
-            Point2D end   = new Point2D.Float(0, power * 10);
+            Point2D start  = new Point2D.Float(Table.WIDTH + GameSettings.SCREEN_MARGIN - 10, 670);
+            Point2D end    = new Point2D.Float(0, power * 10);
             Color[] colors = {Color.green, Color.yellow, Color.red};
             g.setPaint(new LinearGradientPaint(start, end, fracs, colors));
-            g.fillRect(Table.WIDTH + GameSettings.SCREEN_MARGIN + 20, Table.HEIGHT /2 + (200 - power * 10), 20, power * 10);
+            g.fillRect(Table.WIDTH + GameSettings.SCREEN_MARGIN + 20, Table.HEIGHT / 2 + (200 - power * 10), 20, power * 10);
 
         }
     }
 
-    @Override public void mouseClicked(MouseEvent e)
+    @Override
+    public void mouseClicked(MouseEvent e)
     {
     }
 
-    @Override public void mousePressed(MouseEvent e)
+    @Override
+    public void mousePressed(MouseEvent e)
     {
         if (!game.readyForShoot)
         {
@@ -85,7 +87,7 @@ public final class Shoot implements MouseListener, MouseMotionListener
         {
             b = game.balls.get(ball);
 
-            if (Math.abs((int) b.x - e.getPoint().x + b.r) <= b.r && Math.abs((int) (b.y) - e.getPoint().y + b.r) <= b.r)
+            if (Math.abs((int) b.x - e.getPoint().x + b.radius) <= b.radius && Math.abs((int) (b.y) - e.getPoint().y + b.radius) <= b.radius)
             {
                 if (ball == game.indexOfWhiteBall && !game.movingWhiteBall)
                 {
@@ -105,16 +107,19 @@ public final class Shoot implements MouseListener, MouseMotionListener
 
     }
 
-    @Override public void mouseEntered(MouseEvent e)
+    @Override
+    public void mouseEntered(MouseEvent e)
     {
     }
 
-    @Override public void mouseExited(MouseEvent e)
+    @Override
+    public void mouseExited(MouseEvent e)
     {
 
     }
 
-    @Override public void mouseReleased(MouseEvent e)
+    @Override
+    public void mouseReleased(MouseEvent e)
     {
 
         if (!game.readyForShoot)
@@ -139,8 +144,8 @@ public final class Shoot implements MouseListener, MouseMotionListener
             double vY  = aim_oval_y - b.y;
             double len = Math.sqrt((vX * vX) + (vY * vY));
 
-            b.dx = vX / len * power * 60 / GameSettings.TARGET_FPS;
-            b.dy = vY / len * power * 60 / GameSettings.TARGET_FPS;
+            b.velocityX = vX / len * power * 60 / GameSettings.TARGET_FPS;
+            b.velocityY = vY / len * power * 60 / GameSettings.TARGET_FPS;
 
             b.startFriction();
             aiming = false;
@@ -155,7 +160,8 @@ public final class Shoot implements MouseListener, MouseMotionListener
     }
 
 
-    @Override public void mouseDragged(MouseEvent e)
+    @Override
+    public void mouseDragged(MouseEvent e)
     {
         if (!game.readyForShoot)
         {
@@ -174,9 +180,13 @@ public final class Shoot implements MouseListener, MouseMotionListener
         }
     }
 
-    @Override public void mouseMoved(MouseEvent e)
+    @Override
+    public void mouseMoved(MouseEvent e)
     {
-        if (game.indexOfWhiteBall == -1) return;
+        if (game.indexOfWhiteBall == -1)
+        {
+            return;
+        }
 
         Ball b = game.balls.get(game.indexOfWhiteBall);
 
@@ -184,23 +194,31 @@ public final class Shoot implements MouseListener, MouseMotionListener
         {
             double nx = e.getX(), ny = e.getY();
 
-            double xr = GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH + b.r;
-            double xl = GameSettings.SCREEN_MARGIN + Table.WIDTH - b.r - Table.RAIL_WIDTH;
+            double xr = GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH + b.radius;
+            double xl = GameSettings.SCREEN_MARGIN + Table.WIDTH - b.radius - Table.RAIL_WIDTH;
 
-            double yb = GameSettings.SCREEN_MARGIN + Table.HEIGHT - b.r - Table.RAIL_WIDTH;
-            double yt = GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH + b.r;
+            double yb = GameSettings.SCREEN_MARGIN + Table.HEIGHT - b.radius - Table.RAIL_WIDTH;
+            double yt = GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH + b.radius;
 
             if (nx < xr)
+            {
                 nx = xr;
+            }
             else if (nx > xl)
+            {
                 nx = xl;
+            }
             if (ny > yb)
+            {
                 ny = yb;
+            }
             else if (ny < yt)
+            {
                 ny = yt;
+            }
 
-            b.x = nx - b.r;
-            b.y = ny - b.r;
+            b.x = nx - b.radius;
+            b.y = ny - b.radius;
 
         }
         else if (aiming)
@@ -212,9 +230,9 @@ public final class Shoot implements MouseListener, MouseMotionListener
             aim_line_x1 = (int) aim_oval_x + aim_r;
             aim_line_y1 = (int) aim_oval_y + aim_r;
 
-            double pa = Math.hypot(aim_line_x1 - b.getCenterX(), aim_line_y1 - b.getCenterY()) - b.r * 2;
-            double dx = (b.x) + b.r - aim_line_x1;
-            double dy = (b.y) + b.r - aim_line_y1;
+            double pa = Math.hypot(aim_line_x1 - b.getCenterX(), aim_line_y1 - b.getCenterY()) - b.radius * 2;
+            double dx = (b.x) + b.radius - aim_line_x1;
+            double dy = (b.y) + b.radius - aim_line_y1;
             double i  = pa / (Math.sqrt(dx * dx + dy * dy));
 
             aim_line_x2 = (int) ((dx * i) + aim_line_x1);
@@ -241,7 +259,10 @@ public final class Shoot implements MouseListener, MouseMotionListener
 
     private synchronized boolean checkAndMark()
     {
-        if (isRunning) return false;
+        if (isRunning)
+        {
+            return false;
+        }
         isRunning = true;
         return true;
     }
@@ -253,7 +274,7 @@ public final class Shoot implements MouseListener, MouseMotionListener
         {
             new Thread()
             {
-                boolean up   = true;
+                boolean up = true;
                 boolean down = false;
 
                 public void run()
@@ -285,11 +306,11 @@ public final class Shoot implements MouseListener, MouseMotionListener
                             {
                                 frameCount = 0;
 
-                                if(up)
+                                if (up)
                                 {
                                     power++;
 
-                                    if(power >= 20)
+                                    if (power >= 20)
                                     {
                                         up = false;
                                         down = true;
@@ -299,7 +320,7 @@ public final class Shoot implements MouseListener, MouseMotionListener
                                 {
                                     power--;
 
-                                    if(power <= 1)
+                                    if (power <= 1)
                                     {
                                         up = true;
                                         down = false;

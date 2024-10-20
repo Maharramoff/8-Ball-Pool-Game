@@ -13,15 +13,15 @@ import static java.lang.Math.abs;
 public final class Game extends JPanel implements Runnable
 {
     private Thread thread;
-    protected boolean isRunning       = true;
-    private   boolean whiteBallFallen = false;
-    protected boolean readyForShoot   = true;
-    public    boolean movingWhiteBall = true;
+    protected boolean isRunning = true;
+    private boolean whiteBallFallen = false;
+    protected boolean readyForShoot = true;
+    public boolean movingWhiteBall = true;
 
     protected int indexOfWhiteBall = -1;
     private RenderingHints hints;
 
-    protected ArrayList<Ball>          balls;
+    protected ArrayList<Ball> balls;
     Sound sound = new Sound();
     private Shoot shoot;
 
@@ -54,12 +54,18 @@ public final class Game extends JPanel implements Runnable
     {
         int totalBall = balls.size();
 
-        if(totalBall == 0 || (totalBall == 1 && balls.get(0).number == 0))
+        if (totalBall == 0 || (totalBall == 1 && balls.get(0).number == 0))
+        {
             createNewGame();
+        }
 
         for (Ball ball : balls)
-            if (ball.dx != 0 || ball.dy != 0)
+        {
+            if (ball.velocityX != 0 || ball.velocityY != 0)
+            {
                 return;
+            }
+        }
 
         readyForShoot = true;
         shoot.aiming = true;
@@ -70,7 +76,9 @@ public final class Game extends JPanel implements Runnable
         boolean isWhiteBall = false;
 
         if (B.number == 0)
+        {
             isWhiteBall = true;
+        }
 
         if (!isWhiteBall)
         {
@@ -94,24 +102,24 @@ public final class Game extends JPanel implements Runnable
 
     private boolean handleBallCollision(Ball A, Ball B)
     {
-        double dx = A.getCenterX() - B.getCenterX();
-        double dy = A.getCenterY() - B.getCenterY();
+        double dx   = A.getCenterX() - B.getCenterX();
+        double dy   = A.getCenterY() - B.getCenterY();
         double dist = dx * dx + dy * dy;
 
-        if (dist <= (A.r + B.r) * (A.r + B.r))
+        if (dist <= (A.radius + B.radius) * (A.radius + B.radius))
         {
-            double xSpeed    = B.dx - A.dx;
-            double ySpeed    = B.dy - A.dy;
+            double xSpeed    = B.velocityX - A.velocityX;
+            double ySpeed    = B.velocityY - A.velocityY;
             double getVector = dx * xSpeed + dy * ySpeed;
 
             if (getVector > 0)
             {
                 double newX = dx * getVector / dist;
                 double newY = dy * getVector / dist;
-                A.dx += newX;
-                A.dy += newY;
-                B.dx -= newX;
-                B.dy -= newY;
+                A.velocityX += newX;
+                A.velocityY += newY;
+                B.velocityX -= newX;
+                B.velocityY -= newY;
 
                 handleCollisionSound(newX, newY);
 
@@ -126,15 +134,23 @@ public final class Game extends JPanel implements Runnable
     {
 
         double xyVelo = (Math.abs(newX) + Math.abs(newY)) / 2;
-        float vol = -30.0f;
-        if(xyVelo > 7)
+        float  vol    = -30.0f;
+        if (xyVelo > 7)
+        {
             vol = 0.0f;
-        else if(xyVelo > 4)
+        }
+        else if (xyVelo > 4)
+        {
             vol = -5.0f;
-        else if(xyVelo > 3)
+        }
+        else if (xyVelo > 3)
+        {
             vol = -10.0f;
+        }
         else if (xyVelo > 1)
+        {
             vol = -20.0f;
+        }
 
         sound.play("collision.wav", vol);
     }
@@ -171,7 +187,7 @@ public final class Game extends JPanel implements Runnable
     }
 
     @Override
-    public void paint (Graphics g)
+    public void paint(Graphics g)
     {
         super.paint(g);
         Graphics2D graphics2D = (Graphics2D) g;
@@ -197,7 +213,7 @@ public final class Game extends JPanel implements Runnable
         graphics2D.fillRect(GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH, GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH, Table.WIDTH - Table.RAIL_WIDTH * 2, Table.HEIGHT - Table.RAIL_WIDTH * 2);
 
         // Head String
-        graphics2D.setColor(Ball.BALL_WHITE);
+        graphics2D.setColor(Color.WHITE);
         graphics2D.drawLine(GameSettings.SCREEN_MARGIN + Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH, GameSettings.SCREEN_MARGIN + Table.WIDTH / 4, GameSettings.SCREEN_MARGIN + Table.HEIGHT - Table.RAIL_WIDTH);
 
         // Foot Spot
@@ -205,20 +221,19 @@ public final class Game extends JPanel implements Runnable
 
 
         // Pockets
-        if(GameSettings.holesEnabled)
+        if (GameSettings.holesEnabled)
         {
             Pocket.POSITION_MAP.forEach((PocketPosition key, int[] value) ->
-             {
-                 graphics2D.setColor(new Color(46, 24, 12));
-                 graphics2D.fillOval(Pocket.POSITION_MAP.get(key)[0], Pocket.POSITION_MAP.get(key)[1], Pocket.RADIUS * 2, Pocket.RADIUS * 2);
-                 // Pocket Liners
-                 graphics2D.setColor(PocketLiner.COLOR);
-                 graphics2D.setStroke(new BasicStroke(2));
-                 graphics2D.drawArc(Pocket.POSITION_MAP.get(key)[0], Pocket.POSITION_MAP.get(key)[1], Pocket.RADIUS * 2, Pocket.RADIUS * 2, PocketLiner.POSITION_MAP.get(key)[0], PocketLiner.POSITION_MAP.get(key)[1]);
+            {
+                graphics2D.setColor(new Color(46, 24, 12));
+                graphics2D.fillOval(Pocket.POSITION_MAP.get(key)[0], Pocket.POSITION_MAP.get(key)[1], Pocket.RADIUS * 2, Pocket.RADIUS * 2);
+                // Pocket Liners
+                graphics2D.setColor(PocketLiner.COLOR);
+                graphics2D.setStroke(new BasicStroke(2));
+                graphics2D.drawArc(Pocket.POSITION_MAP.get(key)[0], Pocket.POSITION_MAP.get(key)[1], Pocket.RADIUS * 2, Pocket.RADIUS * 2, PocketLiner.POSITION_MAP.get(key)[0], PocketLiner.POSITION_MAP.get(key)[1]);
 
-             });
+            });
         }
-
 
 
         reDrawBalls(graphics2D);
@@ -240,13 +255,14 @@ public final class Game extends JPanel implements Runnable
         indexOfWhiteBall = 0;
     }
 
-    private RenderingHints createRenderingHints() {
+    private RenderingHints createRenderingHints()
+    {
         RenderingHints hints = new RenderingHints(RenderingHints.KEY_ANTIALIASING,
-                                                  RenderingHints.VALUE_ANTIALIAS_ON);
+                RenderingHints.VALUE_ANTIALIAS_ON);
         hints.put(RenderingHints.KEY_INTERPOLATION,
-                  RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         hints.put(RenderingHints.KEY_RENDERING,
-                  RenderingHints.VALUE_RENDER_QUALITY);
+                RenderingHints.VALUE_RENDER_QUALITY);
         return hints;
     }
 
@@ -271,11 +287,11 @@ public final class Game extends JPanel implements Runnable
 
             if (ifPocket(b1))
             {
-                b1.dx = 0;
-                b1.dy = 0;
+                b1.velocityX = 0;
+                b1.velocityY = 0;
                 balls.remove(i);
 
-                if(b1.number == 0)
+                if (b1.number == 0)
                 {
                     whiteBallFallen = true;
                     indexOfWhiteBall = -1;
@@ -311,9 +327,15 @@ public final class Game extends JPanel implements Runnable
 
     private boolean ifPocket(Ball B)
     {
-        if(!GameSettings.holesEnabled) return false;
+        if (!GameSettings.holesEnabled)
+        {
+            return false;
+        }
 
-        if (movingWhiteBall) return false;
+        if (movingWhiteBall)
+        {
+            return false;
+        }
 
         Map<PocketPosition, int[]> map = Pocket.POSITION_MAP;
 
@@ -322,7 +344,7 @@ public final class Game extends JPanel implements Runnable
             double dx   = entry.getValue()[0] + Pocket.RADIUS - B.getCenterX();
             double dy   = entry.getValue()[1] + Pocket.RADIUS - B.getCenterY();
             double dist = Math.sqrt(dx * dx + dy * dy);
-            double min  = Math.sqrt((Pocket.RADIUS + B.r) * (Pocket.RADIUS + B.r)) - (B.r - Pocket.MARGIN);
+            double min  = Math.sqrt((Pocket.RADIUS + B.radius) * (Pocket.RADIUS + B.radius)) - (B.radius - Pocket.MARGIN);
 
             if (dist <= min)
             {

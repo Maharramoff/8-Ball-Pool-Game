@@ -1,39 +1,26 @@
 package io.github.maharramoff.game.pool;
 
 import java.awt.*;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 public final class Ball
 {
-    public static final Color BALL_WHITE = new Color(255, 247, 200);
-    public static final Map<Integer, Color[]> BALL_COLORS = new HashMap<>();
+    public static final Map<BallType, Color[]> BALL_COLORS = new EnumMap<>(BallType.class);
 
     static
     {
-        BALL_COLORS.put(0, new Color[]{BALL_WHITE, BALL_WHITE, BALL_WHITE, null});
-        BALL_COLORS.put(1, new Color[]{new Color(245, 195, 18), BALL_WHITE, Color.BLACK, null});
-        BALL_COLORS.put(2, new Color[]{new Color(49, 85, 171), BALL_WHITE, Color.BLACK, null});
-        BALL_COLORS.put(3, new Color[]{new Color(255, 69, 0), BALL_WHITE, Color.BLACK, null});
-        BALL_COLORS.put(4, new Color[]{new Color(82, 60, 171), BALL_WHITE, Color.BLACK, null});
-        BALL_COLORS.put(5, new Color[]{new Color(214, 19, 29), BALL_WHITE, Color.BLACK, null});
-        BALL_COLORS.put(6, new Color[]{new Color(37, 123, 61), BALL_WHITE, Color.BLACK, null});
-        BALL_COLORS.put(7, new Color[]{new Color(128, 0, 0), BALL_WHITE, Color.BLACK, null});
-        BALL_COLORS.put(8, new Color[]{Color.BLACK, new Color(255, 247, 200), Color.BLACK, null});
-        BALL_COLORS.put(9, new Color[]{BALL_WHITE, new Color(245, 195, 18), BALL_WHITE, Color.BLACK});
-        BALL_COLORS.put(10, new Color[]{BALL_WHITE, new Color(49, 85, 171), BALL_WHITE, Color.BLACK});
-        BALL_COLORS.put(11, new Color[]{BALL_WHITE, new Color(255, 69, 0), BALL_WHITE, Color.BLACK});
-        BALL_COLORS.put(12, new Color[]{BALL_WHITE, new Color(82, 60, 171), BALL_WHITE, Color.BLACK});
-        BALL_COLORS.put(13, new Color[]{BALL_WHITE, new Color(214, 19, 29), BALL_WHITE, Color.BLACK});
-        BALL_COLORS.put(14, new Color[]{BALL_WHITE, new Color(37, 123, 61), BALL_WHITE, Color.BLACK});
-        BALL_COLORS.put(15, new Color[]{BALL_WHITE, new Color(128, 0, 0), BALL_WHITE, Color.BLACK});
+        for (BallType type : BallType.values())
+        {
+            BALL_COLORS.put(type, type.getColors());
+        }
     }
 
-    protected double x, y;
-    protected int r, number;
-    protected double dx, dy;
-    private double ddy, ddx;
-    private Sound sound = new Sound();
+    double x, y;
+    int radius, number;
+    double velocityX, velocityY;
+    private double accelerationY, accelerationX;
+    private final Sound sound = new Sound();
 
     private static final class RackConstants
     {
@@ -53,7 +40,6 @@ public final class Ball
         static final double QUADRATIC_DENOMINATOR = 2.0; // Denominator from quadratic formula
 
         static final int FIRST_ROW_INDEX = 1;  // Rows are 1-based indexed
-        static final double HALF = 2.0;        // Used in division by 2
         static final int VERTICAL_RACK_OFFSET = 3;  // Vertical offset for rack positioning
 
         // Position adjustment constants
@@ -92,10 +78,10 @@ public final class Ball
     {
         double x = GameSettings.SCREEN_MARGIN +
                 (Table.WIDTH * RackConstants.CUE_BALL_X_FRACTION) -
-                (r * RackConstants.BALL_SPACING);
+                (radius * RackConstants.BALL_SPACING);
 
         double y = GameSettings.SCREEN_MARGIN +
-                (Table.HEIGHT * RackConstants.VERTICAL_CENTER_FRACTION) - r;
+                (Table.HEIGHT * RackConstants.VERTICAL_CENTER_FRACTION) - radius;
 
         return new BallPosition(x, y);
     }
@@ -132,7 +118,7 @@ public final class Ball
         int rowOffset = row - RackConstants.FIRST_ROW_INDEX;
 
         return footSpotX +
-                (r * RackConstants.BALL_SPACING * rowOffset) -
+                (radius * RackConstants.BALL_SPACING * rowOffset) -
                 (RackConstants.RACK_ROW_HORIZONTAL_OFFSET * rowOffset);
 
     }
@@ -146,13 +132,13 @@ public final class Ball
         double adjustedBallCount = previousRowsBalls - RackConstants.POSITION_ADJUSTMENT;
 
         // Calculate vertical offset based on ball position
-        double ballPositionOffset = -r * RackConstants.BALL_SPACING * (adjustedBallCount - number);
+        double ballPositionOffset = -radius * RackConstants.BALL_SPACING * (adjustedBallCount - number);
 
         // Calculate rack vertical adjustment
-        double rackVerticalAdjustment = (row - RackConstants.VERTICAL_RACK_OFFSET) * r;
+        double rackVerticalAdjustment = (row - RackConstants.VERTICAL_RACK_OFFSET) * radius;
 
         // Apply final radius adjustment
-        double finalRadiusAdjustment = -r;
+        double finalRadiusAdjustment = -radius;
 
         return footSpotY +
                 ballPositionOffset +
@@ -162,7 +148,7 @@ public final class Ball
 
     Ball(int number)
     {
-        r = 10;
+        radius = 10;
         this.number = number;
         setXY(number);
     }
@@ -170,10 +156,10 @@ public final class Ball
 
     public void update()
     {
-        if (dy != 0 || dx != 0)
+        if (velocityY != 0 || velocityX != 0)
         {
-            y += dy;
-            x += dx;
+            y += velocityY;
+            x += velocityX;
 
             if (GameSettings.frictionEnabled)
             {
@@ -182,41 +168,41 @@ public final class Ball
         }
     }
 
-    protected void handleBounds()
+    void handleBounds()
     {
         boolean bound = false;
 
-        if (x > GameSettings.SCREEN_MARGIN + Table.WIDTH - (Table.RAIL_WIDTH + 2 * r))
+        if (x > GameSettings.SCREEN_MARGIN + Table.WIDTH - (Table.RAIL_WIDTH + 2 * radius))
         {
-            dx = -Math.abs(dx);
-            ddx = Math.abs(ddx);
+            velocityX = -Math.abs(velocityX);
+            accelerationX = Math.abs(accelerationX);
             bound = true;
         }
         else if (x < GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH)
         {
-            dx = Math.abs(dx);
-            ddx = -Math.abs(ddx);
+            velocityX = Math.abs(velocityX);
+            accelerationX = -Math.abs(accelerationX);
             bound = true;
         }
 
         if (y < GameSettings.SCREEN_MARGIN + Table.RAIL_WIDTH)
         {
-            dy = Math.abs(dy);
-            ddy = -Math.abs(ddy);
+            velocityY = Math.abs(velocityY);
+            accelerationY = -Math.abs(accelerationY);
             bound = true;
         }
-        else if (y > GameSettings.SCREEN_MARGIN + Table.HEIGHT - (Table.RAIL_WIDTH + 2 * r))
+        else if (y > GameSettings.SCREEN_MARGIN + Table.HEIGHT - (Table.RAIL_WIDTH + 2 * radius))
         {
-            dy = -Math.abs(dy);
-            ddy = Math.abs(ddy);
+            velocityY = -Math.abs(velocityY);
+            accelerationY = Math.abs(accelerationY);
             bound = true;
         }
 
         if (bound)
         {
-            boundSound(dx, dy);
-            dx *= 0.98;
-            dy *= 0.98;
+            boundSound(velocityX, velocityY);
+            velocityX *= 0.98;
+            velocityY *= 0.98;
         }
     }
 
@@ -249,7 +235,7 @@ public final class Ball
 
     public void startFriction()
     {
-        double k = dx * dx + dy * dy;
+        double k = velocityX * velocityX + velocityY * velocityY;
 
         k = Math.sqrt(k) * GameSettings.TARGET_FPS / 2;
 
@@ -258,60 +244,57 @@ public final class Ball
             return;
         }
 
-        ddy = -dy / k;
-        ddx = -dx / k;
+        accelerationY = -velocityY / k;
+        accelerationX = -velocityX / k;
     }
 
     private void handleBallFriction()
     {
-        dy += ddy;
-        dx += ddx;
+        velocityY += accelerationY;
+        velocityX += accelerationX;
 
-        if (dx > 0 == ddx > 0)
+        if (velocityX > 0 == accelerationX > 0)
         {
-            dx = 0;
+            velocityX = 0;
         }
 
-        if (dy > 0 == ddy > 0)
+        if (velocityY > 0 == accelerationY > 0)
         {
-            dy = 0;
+            velocityY = 0;
         }
     }
 
     public void draw(Graphics2D graphics2D)
     {
-        graphics2D.setColor(BALL_COLORS.get(number)[0]);
-        graphics2D.fillOval((int) x, (int) y, 2 * r, 2 * r);
-        graphics2D.setColor(BALL_COLORS.get(number)[1]);
+        graphics2D.setColor(BALL_COLORS.get(BallType.values()[number])[0]);
+        graphics2D.fillOval((int) x, (int) y, 2 * radius, 2 * radius);
+        graphics2D.setColor(BALL_COLORS.get(BallType.values()[number])[1]);
 
         if (number > 8)
         {
-            graphics2D.fillRoundRect((int) (x), (int) (y + r / 2), 20, 10, 7, 7);
-            graphics2D.setColor(BALL_COLORS.get(number)[2]);
-            graphics2D.fillOval((int) (x + r / 2), (int) (y + r / 2), r, r);
-            graphics2D.setColor(BALL_COLORS.get(number)[3]);
+            graphics2D.fillRoundRect((int) (x), (int) (y + radius / 2), 20, 10, 7, 7);
+            graphics2D.setColor(BALL_COLORS.get(BallType.values()[number])[2]);
+            graphics2D.fillOval((int) (x + radius / 2), (int) (y + radius / 2), radius, radius);
+            graphics2D.setColor(BALL_COLORS.get(BallType.values()[number])[3]);
         }
         else
         {
-            graphics2D.fillOval((int) (x + r / 2), (int) (y + r / 2), r, r);
-            graphics2D.setColor(BALL_COLORS.get(number)[2]);
+            graphics2D.fillOval((int) (x + radius / 2), (int) (y + radius / 2), radius, radius);
+            graphics2D.setColor(BALL_COLORS.get(BallType.values()[number])[2]);
         }
 
         graphics2D.setFont(new Font("Arial Bold", Font.BOLD, 8));
-        graphics2D.drawString(String.valueOf(number), (float) (x + (number >= 10 ? r - 4.6 : r - 2.6)), (float) (y + r + 2.6));
-
-        //graphics2D.drawString((int) getCenterX() + "-" + (int) x + ":" + (int) getCenterY() + "-" + (int) y, (float) x, (float) y);
-
+        graphics2D.drawString(String.valueOf(number), (float) (x + (number >= 10 ? radius - 4.6 : radius - 2.6)), (float) (y + radius + 2.6));
     }
 
     public double getCenterX()
     {
-        return this.x + r;
+        return this.x + radius;
     }
 
     public double getCenterY()
     {
-        return this.y + r;
+        return this.y + radius;
     }
 }
 
