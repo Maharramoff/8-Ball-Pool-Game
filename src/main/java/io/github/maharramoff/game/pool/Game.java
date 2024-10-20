@@ -82,7 +82,7 @@ public final class Game extends JPanel implements Runnable
 
         if (!isWhiteBall)
         {
-            balls.add(new Ball(0));
+            balls.add(new Ball(0, BallColor.WHITE, BallType.CUE));
             indexOfWhiteBall = getCurrentIndexOfWhiteBall(balls);
         }
     }
@@ -250,8 +250,22 @@ public final class Game extends JPanel implements Runnable
     private void generateBalls()
     {
         balls = new ArrayList<>();
-
-        IntStream.range(0, 16).forEach(i -> balls.add(new Ball(i)));
+        balls.add(new Ball(0, BallColor.WHITE, BallType.CUE));
+        balls.add(new Ball(1, BallColor.YELLOW, BallType.SOLID));
+        balls.add(new Ball(2, BallColor.BLUE, BallType.SOLID));
+        balls.add(new Ball(3, BallColor.RED, BallType.SOLID));
+        balls.add(new Ball(4, BallColor.PURPLE, BallType.SOLID));
+        balls.add(new Ball(5, BallColor.ORANGE, BallType.SOLID));
+        balls.add(new Ball(6, BallColor.GREEN, BallType.SOLID));
+        balls.add(new Ball(7, BallColor.MAROON, BallType.SOLID));
+        balls.add(new Ball(8, BallColor.BLACK, BallType.SOLID));
+        balls.add(new Ball(9, BallColor.YELLOW, BallType.STRIPED));
+        balls.add(new Ball(10, BallColor.BLUE, BallType.STRIPED));
+        balls.add(new Ball(11, BallColor.RED, BallType.STRIPED));
+        balls.add(new Ball(12, BallColor.PURPLE, BallType.STRIPED));
+        balls.add(new Ball(13, BallColor.ORANGE, BallType.STRIPED));
+        balls.add(new Ball(14, BallColor.GREEN, BallType.STRIPED));
+        balls.add(new Ball(15, BallColor.MAROON, BallType.STRIPED));
         indexOfWhiteBall = 0;
     }
 

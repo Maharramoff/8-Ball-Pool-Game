@@ -1,26 +1,16 @@
 package io.github.maharramoff.game.pool;
 
 import java.awt.*;
-import java.util.EnumMap;
-import java.util.Map;
 
 public final class Ball
 {
-    public static final Map<BallType, Color[]> BALL_COLORS = new EnumMap<>(BallType.class);
-
-    static
-    {
-        for (BallType type : BallType.values())
-        {
-            BALL_COLORS.put(type, type.getColors());
-        }
-    }
-
     double x, y;
     int radius, number;
     double velocityX, velocityY;
     private double accelerationY, accelerationX;
     private final Sound sound = new Sound();
+    Color color;
+    BallType type;
 
     private static final class RackConstants
     {
@@ -46,6 +36,16 @@ public final class Ball
         static final double POSITION_ADJUSTMENT = 1.0;  // Used for position adjustments in calculations
     }
 
+
+    Ball(int ballNumber, Color color, BallType type)
+    {
+        radius = 10;
+        this.number = ballNumber;
+        this.color = color;
+        this.type = type;
+        setXY(number);
+    }
+
     private static final class BallPosition
     {
         final double x;
@@ -58,20 +58,20 @@ public final class Ball
         }
     }
 
-    private void setXY(int number)
+    private void setXY(int ballNumber)
     {
-        BallPosition position = calculateBallPosition(number);
+        BallPosition position = calculateBallPosition(ballNumber);
         this.x = position.x;
         this.y = position.y;
     }
 
-    private BallPosition calculateBallPosition(int number)
+    private BallPosition calculateBallPosition(int ballNumber)
     {
-        if (number == 0)
+        if (ballNumber == 0)
         {
             return calculateCueBallPosition();
         }
-        return calculateRackBallPosition(number);
+        return calculateRackBallPosition(ballNumber);
     }
 
     private BallPosition calculateCueBallPosition()
@@ -86,9 +86,9 @@ public final class Ball
         return new BallPosition(x, y);
     }
 
-    private BallPosition calculateRackBallPosition(int number)
+    private BallPosition calculateRackBallPosition(int ballNumber)
     {
-        int row = calculateRowNumber(number);
+        int row = calculateRowNumber(ballNumber);
 
         // Calculate foot spot (apex of the rack) position
         double footSpotX = GameSettings.SCREEN_MARGIN +
@@ -98,7 +98,7 @@ public final class Ball
 
         // Calculate position within the rack
         double x = calculateRackX(footSpotX, row);
-        double y = calculateRackY(footSpotY, row, number);
+        double y = calculateRackY(footSpotY, row, ballNumber);
 
         return new BallPosition(x, y);
     }
@@ -123,7 +123,7 @@ public final class Ball
 
     }
 
-    private double calculateRackY(double footSpotY, int row, int number)
+    private double calculateRackY(double footSpotY, int row, int ballNumber)
     {
         // Calculate triangular number sequence for balls in previous rows
         double previousRowsBalls = (row * (row + RackConstants.POSITION_ADJUSTMENT)) / 2;
@@ -132,7 +132,7 @@ public final class Ball
         double adjustedBallCount = previousRowsBalls - RackConstants.POSITION_ADJUSTMENT;
 
         // Calculate vertical offset based on ball position
-        double ballPositionOffset = -radius * RackConstants.BALL_SPACING * (adjustedBallCount - number);
+        double ballPositionOffset = -radius * RackConstants.BALL_SPACING * (adjustedBallCount - ballNumber);
 
         // Calculate rack vertical adjustment
         double rackVerticalAdjustment = (row - RackConstants.VERTICAL_RACK_OFFSET) * radius;
@@ -145,14 +145,6 @@ public final class Ball
                 rackVerticalAdjustment +
                 finalRadiusAdjustment;
     }
-
-    Ball(int number)
-    {
-        radius = 10;
-        this.number = number;
-        setXY(number);
-    }
-
 
     public void update()
     {
@@ -266,21 +258,30 @@ public final class Ball
 
     public void draw(Graphics2D graphics2D)
     {
-        graphics2D.setColor(BALL_COLORS.get(BallType.values()[number])[0]);
-        graphics2D.fillOval((int) x, (int) y, 2 * radius, 2 * radius);
-        graphics2D.setColor(BALL_COLORS.get(BallType.values()[number])[1]);
-
-        if (number > 8)
+        if (type == BallType.STRIPED)
         {
+            graphics2D.setColor(BallColor.WHITE);
+            graphics2D.fillOval((int) x, (int) y, 2 * radius, 2 * radius);
+            graphics2D.setColor(color);
             graphics2D.fillRoundRect((int) (x), (int) (y + radius / 2), 20, 10, 7, 7);
-            graphics2D.setColor(BALL_COLORS.get(BallType.values()[number])[2]);
+            graphics2D.setColor(BallColor.WHITE);
             graphics2D.fillOval((int) (x + radius / 2), (int) (y + radius / 2), radius, radius);
-            graphics2D.setColor(BALL_COLORS.get(BallType.values()[number])[3]);
+            graphics2D.setColor(BallColor.BLACK);
+        }
+        else if (type == BallType.SOLID)
+        {
+            graphics2D.setColor(color);
+            graphics2D.fillOval((int) x, (int) y, 2 * radius, 2 * radius);
+            graphics2D.setColor(BallColor.WHITE);
+            graphics2D.fillOval((int) (x + radius / 2), (int) (y + radius / 2), radius, radius);
+            graphics2D.setColor(BallColor.BLACK);
         }
         else
         {
+            graphics2D.setColor(color);
+            graphics2D.fillOval((int) x, (int) y, 2 * radius, 2 * radius);
+            graphics2D.setColor(BallColor.WHITE);
             graphics2D.fillOval((int) (x + radius / 2), (int) (y + radius / 2), radius, radius);
-            graphics2D.setColor(BALL_COLORS.get(BallType.values()[number])[2]);
         }
 
         graphics2D.setFont(new Font("Arial Bold", Font.BOLD, 8));
